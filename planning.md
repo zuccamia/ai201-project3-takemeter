@@ -229,7 +229,7 @@ The confusion matrix is the diagnostic for Section 3 edges (`analysis` ↔ `expl
 
 **Validation setup:**
 <!-- Train/test split or k-fold? A held-out test set you don't touch until the end? Note it so results are trustworthy. -->
-Stratified 80/20 split: 160 train+val, 40 test (untouched until final scoring). On the 160, 5-fold CV during development for stable macro-F1. The zero-shot Llama-3.3-70B baseline scores on the same held-out 40.
+Stratified 70/15/15 split: 140 train, 30 val, 30 test. Test is held out until final scoring; val is used during development for prompt and hyperparameter iteration. The zero-shot Llama-3.3-70B baseline scores on the same held-out 30-row test set. Caveat: 30 rows is a small test set — a single misclassification shifts per-class recall by ~3 percentage points overall and ~17 points on the smallest classes (n≈6), so narrow macro-F1 gaps are noise and per-class numbers should be reported alongside any headline.
 
 ---
 

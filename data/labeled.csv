@@ -1,0 +1,1923 @@
+text,label,notes
+"Writing to disk for every write is required, otherwise you're not durable.
+
+Sure it's faster to never write to disk, then you reboot and you've lost data.
+
+/dev/null is a webscale database that is even faster!",hot_take,
+"Hi HN,
+
+I’m releasing minikv, a distributed key-value and object store in Rust.
+
+What is minikv?
+minikv is an open-source, distributed storage engine built for learning, experimentation, and self-hosted setups. 
+It combines a strongly-consistent key-value database (Raft), S3-compatible object storage, and basic multi-tenancy. 
+I started minikv as a learning project about distributed systems, and it grew into something production-ready and fun to extend.
+
+Features/highlights:
+
+- Raft consensus with automatic failover and sharding
+- S3-compatible HTTP API (plus REST/gRPC APIs)
+- Pluggable storage backends: in-memory, RocksDB, Sled
+- Multi-tenant: per-tenant namespaces, role-based access, quotas, and audit
+- Metrics (Prometheus), TLS, JWT-based API keys
+- Easy to deploy (single binary, works with Docker/Kubernetes)
+
+Quick demo (single node):
+
+git clone https://github.com/whispem/minikv.git
+cd minikv
+cargo run --release -- --config config.example.toml
+curl localhost:8080/health/ready
+# S3 upload + read
+curl -X PUT localhost:8080/s3/mybucket/hello -d ""hi HN""
+curl localhost:8080/s3/mybucket/hello
+
+Docs, cluster setup, and architecture details are in the repo.
+I’d love to hear feedback, questions, ideas, or your stories running distributed infra in Rust!
+
+Repo: https://github.com/whispem/minikv
+Crate: https://crates.io/crates/minikv",explanation,
+"Not quite -- those were loans that were largely repaid, quite different from the subsidies CCP uses for its industrial base.
+
+ProPublica has a nice tracker that shows the loans: https://projects.propublica.org/bailout/
+
+You can also see how subsidies compare between China and OECD in this recent doc. In autos, China subsidizes to the tune of 2-3% of revenue vs. <0.5% for North America. https://www.oecd.org/en/data/dashboards/magic-database-indus...",analysis,
+"Paste in my prompt to Claude Code with an embedded API key for accessing my public readonly SQL+vector database, and you have a state-of-the-art research tool over Hacker News, arXiv, LessWrong, and dozens of other high-quality public commons sites. Claude whips up the monster SQL queries that safely run on my machine, to answer your most nuanced questions.
+
+There's also an Alerts functionality, where you can just ask Claude to submit a SQL query as an alert, and you'll be emailed when the ultra nuanced criteria is met (and the output changes). Like I want to know when somebody posts about ""estrogen"" in a psychoactive context, or enough biology metaphors when talking about building infrastructure.
+
+Currently have embedded: 
+posts: 1.4M / 4.6M
+comments: 15.6M / 38M
+That's with Voyage-3.5-lite. And you can do amazing compositional vector search, like search @FTX_crisis - (@guilt_tone - @guilt_topic) to find writing that was about the FTX crisis and distinctly without guilty tones, but that can mention ""guilt"".
+
+I can embed everything and all the other sources for cheap, I just literally don't have the money.",explanation,
+"Hear me out: use JWTs as the cookie session value.
+
+- Use ES256
+
+- Always set the JTI to be completely random
+
+- Set iat (issued at time) and exp (expiration time)
+
+- Set iss (issuer) and aud (audience) to match your application
+
+- Set sub (subject) to match whatever unique identifier you use for users
+
+Store the hash of the JWT in your database with a lazy cleanup hook on the expiration time.
+
+Now, you can use this JWT for a cheap WAF at the edge!
+
+Token expired already? No need to query the database, reject.
+
+Audience doesn't match the requested URL? No need to query the database, reject.
+
+Signature doesn't match your public key? No need to query the database, reject.
+
+Everything passes? Query the database for the token hash.
+
+Token hash not in the database? Add the token hash to the WAF's cache (with lazy cleanup hook on the expiration time).
+
+Everything passes but token hash in the WAF cache of rejects? No need to query the database, reject.
+
+etc
+
+See the benefit? It's defense in depth. If you screw this up, all you lose is the WAF layer.",analysis,
+"I know what you're thinking... and I still can't believe it, but...
+
+This morning, our database flagged a duplicate UUID (v4). I checked, thinking it may have been a double-insert bug or something, but no.
+
+The original UUID was from a record added in 2025 (about a year ago), and today the system inserted a new document with a fresh UUIDv4 and it came up with the exact same one:
+
+b6133fd6-70fe-4fe3-bed6-8ca8fc9386cd
+
+We're using this:
+https://www.npmjs.com/package/uuid
+
+I thought this is technically impossible, and it will never happen, and since we're not modifying the UUIDs in any way, I really wonder how that.... is possible!? We're literally only calling:
+
+import { v4 as uuidv4 } from ""uuid"";
+
+const document_id = uuidv4();
+
+... and then insert into the database, that's it.
+
+Additionally, the database only has about 15.000 records, and now one collision. Statistically... impossible.
+
+Has that ever happened to anyone?! What in the...",anecdote,
+"If it quacks like a duck... An account has a single Personal Data Server (PDS), right? The DID links to a PDS which is the canonical data feed for a user, and where a user's writes go. Data can be replicated but the PDS is treated as canonical. That's much closer to client/server architecture than distributed architecture. There's no P2P database. There's no writes into a DHT or peers. You write to your PDS, then those writes are optionally mirrored. Also discovery happens via DNS, so you don't even ask peers for data. You connect to a relay not as a peer but as a client asking a server for a copy of data that's canonically hosted by the PDS. I don't think it's a stretch to call the PDS an instance and the relay a mirror.",analysis,
+"Huh... not sure how that got in there, I wrote this without LLM assistance (aside from a proof reading run, but I do that in Claude so it doesn't have the ability to edit my own text).
+
+It's quite possible I've been subconsciously influenced into thinking in terms of ""surfaces"" though!
+
+I just edited that to this, which is a bit cleaner:
+
+> I quickly realised that the sandboxed pattern is interesting for way more than just adding custom apps in a chat interface and promoted it to its own top-level concept within the Datasette ecosystem.",anecdote,
+"I have something similar, but as open database
+
+https://github.com/rumca-js/Internet-Places-Database
+
+Recently also created android app that can browse domains. It awaits fdroid approval.
+
+https://github.com/rumca-js/OfflineWebSearch",anecdote,
+"It took 5 years from construction start to grid connection for Oskarshamn R3, at the time the reactor with the world’s highest rated output. Since it began operating it has produced 350TWh.
+
+That nuclear power must take forever is a myth and is only due to dysfunctional politics.
+
+That “you get a permit in the winter and it’s done by summer” is a totally bogus claim. Perhaps for some tiny installation compared to a power plant with 1.5GW output.
+
+https://world-nuclear.org/nuclear-reactor-database/details/o...",analysis,
+So i've been building a product and my clients really hate the idea that their code is stored on my database (unencrypted). The problem is that I need to process the data in the background often and thus I cannot store it end-to-end encrypted. Is there any service that allows you to deploy some sort of database that only the client accesses and at the same time allows me to process it somehow maybe via apis?,anecdote,
+"Hi HN, I built Ink, a full stack deployment platform where the primary users are AI agents, not humans.
+
+We all know AI can write code, but deploying them still requires a human to wire it up: hosting, databases, DNS, and secrets. Ink gives agents those tools directly.
+
+The agent calls ""deploy"" and the platform auto-detects the framework, builds it, deploys it, and returns a live URL at *.ml.ink. Here's a demo with Claude Code: https://www.youtube.com/watch?v=F6ZM_RrIaC0.
+
+What Ink does that I haven't seen elsewhere:
+
+- One agent skill for compute + databases + DNS + secrets + domains + usage + metrics + logs + scaling. The agent doesn't juggle separate providers — one account, one auth, one set of tools.
+
+- DNS zone delegation. Delegate a zone once (e.g. dev.acme.com) and agents create any subdomain instantly — no manual adding DNS records each time, no propagation wait.
+
+- Multiple agents and humans share one workspace and collaborate on projects. I envision a future where many agents collaborate together. I'm working on a cool demo to share.
+
+- Built-in git hosting. Agents push code and deploy without the human setting up GitHub first. No external account needed. (Of course if you're a developer you can store code on GitHub — that's the recommended pattern.)
+
+You also have what you'd expect:
+- UI with service observability designed for humans (logs, metrics, DNS).
+- GitHub integration — push triggers auto-redeploy.
+- Per-minute billing for CPU, memory, and egress. No per-seat, no per-agent.
+- Error responses designed for LLMs. Structured reason codes with suggested next actions, not raw stack traces. When a deploy fails the agent reads the log, fixes it, and redeploys autonomously.
+
+Try: https://ml.ink
+Free $2 trial credits, no credit card. In case you want to try further here's 20% code ""GOODFORTUNE"".",explanation,
+"When we first started building with LLMs, the gap was obvious: they could reason well in the moment, but forgot everything as soon as the conversation moved on.
+
+You could tell an agent, “I don’t like coffee,” and three steps later it would suggest espresso again. It wasn’t broken logic, it was missing memory.
+
+Over the past few years, people have tried a bunch of ways to fix it:
+
+1. Prompt stuffing / fine-tuning – Keep prepending history. Works for short chats, but tokens and cost explode fast.
+
+2. Vector databases (RAG) – Store embeddings in Pinecone/Weaviate. Recall is semantic, but retrieval is noisy and loses structure.
+
+3. Graph databases – Build entity-relationship graphs. Great for reasoning, but hard to scale and maintain.
+
+4. Hybrid systems – Mix vectors, graphs, key-value, and relational DBs. Flexible but complex.
+
+And then there’s the twist:
+Relational databases! Yes, the tech that’s been running banks and social media for decades is looking like one of the most practical ways to give AI persistent memory.
+
+Instead of exotic stores, you can:
+
+- Keep short-term vs long-term memory in SQL tables
+
+- Store entities, rules, and preferences as structured records
+
+- Promote important facts into permanent memory
+
+- Use joins and indexes for retrieval
+
+This is the approach we’ve been working on at Gibson. We built an open-source project called Memori (https://memori.gibsonai.com/), a multi-agent memory engine that gives your AI agents human-like memory.
+
+It’s kind of ironic, after all the hype around vectors and graphs, one of the best answers to AI memory might be the tech we’ve trusted for 50+ years.
+
+I would love to know your thoughts about our approach!",analysis,
+"Howdy,
+
+A bit past the OpenClaw hype-train, but I remember seeing all this news about the massive security risks OpenClaw has, so I wrapped it with MakerChecker so you can have sophisticated guarantees and controls over OpenClaw. Good enough that you could have it be an employee ;)
+
+Made a few demos where you could control how it uses finances, customer databases, etc. And how it could actually be used in the workplace.",anecdote,
+"I may get to work for a small translation agency to build a website for them plus a bit of marketing stuff, and maybe a remote desktop and a platform for invoicing for their personnel. I am self-teaching myself web-design and the related stuff (Python mainly for everything, but HTML/CSS, C++, SQL and databases also) and a few years ago I also administered a Wordpress site for a while, so am a bit familiar with themes/addons etc.
+
+But for a few recent months it seems I've seen some news on HN as about once per month that someone's Wordpress site was hacked.
+
+Which web framework may be better for a small agency (or in a general business case): Wordpress or Django/Flask?
+
+Can you describe a typical workflow and which other tools/frameworks/keywords/etc (like REST) I need to use for this?
+
+As I am a bit nervous that I am self-taught in this field, though have tons of materials on that, but this job may provide some resources for my main projects.",anecdote,
+"https://pardonned.com
+
+Inspired by the videos of Liz Oyer, I wanted to be able to verify her claims and just look up all the pardons more easily.
+
+Tech Stack: 
+ Playwright - to sccrape the DOJ website
+ SQLite - local database
+ Astro 6 - Build out a static website from the sqlite db
+
+All code is open source and available on Github.",anecdote,
+"I never understood why someone hasn't made a framework that makes it stupidly easy to fill an HTML page with SQLite database tables, with all the usual display controls, and with as much ""liveness"" as desired, and with a protocol (over HTTPS) to manage comms to a server-side instance. SQLite is robust, lightweight, bulletproof - a WASM build belongs on ALL the webpages !",hot_take,
+"I had an idea for creating a crowdsourced database of AI prompts that no AI model could yet crack (wanted to use some of them as we're adding new models to Kilo Code).
+
+I've seen a bunch of those prompts scattered across HN, so thought to open a thread here so we can maybe have a centralied location for this.
+
+Share your prompt that stumps every AI model here.",anecdote,"This post describes an idea that came from a personal observation (seeing prompts that are hard to crack for AI models scattered across HackerNews) so while it's lacking a full narrative arc, it can be considered a weak anecdote. Additionally, this post has no analytical element, nor is it attempting to explain how the ""crowdsourced database"" would work or look like in details, nor is it bold or confident enough for a hot-take (it is not stating an opinion but rather inviting readers to share their inputs)."
+"Multiple projects are coming to the same point it seems. Motherduck has been marketing ""dives"" since the beginning of the year (https://motherduck.com/blog/duck-dive-and-answer/) and in the Louie.ai team, we have been iterating on different patterns for similar needs. I'm getting the feeling that the answer to SaaS apps as fixed UIs over databases being dead because of coding agents means just the fixed dashboard pattern is dead, not SaaS, and BYO UI is part of the new table stakes.
+
+I'm curious where the pattern will go. My sense is there is a split between cathedrals vs bazaar for approach here, where cathedrals are quite rigid app builders, think framer/wix, while bazaars focus a layer below for more flexibility but less integrated.",analysis,"RELABEL hot_take->analysis: hedged exploratory speculation ('I'm getting the feeling','my sense is') reasoning that the fixed-dashboard pattern—not SaaS—is dead; no register/provocation."
+"The article has an explanation for what kind of database it is. After reading that one sentence you wouldn't write the second paragraph.
+
+> it's optimized for the kind of queries that scan millions of rows to filter, aggregate, and join — not the kind that look up a single record by primary key",hot_take,
+"Hi.
+
+We're using Stripe and we got hit by a bunch of friendly fraud where we see an easy solution how to prevent this from happening - blocking a specific bank. But Stripe does not give you the BIN of the cards, and will not allow you to block by card issuer name.
+
+BIN databases cost like $2.500 per year and I'm not sure how accurate they are. Why on Earth Stripe wouldn't let us see the BINs/block by issuer names is beyond me.
+
+So I'm looking for an alternative that:
+
+1) Supports 3DS
+
+2) Lets you block by issuer name
+
+3) Shows you the BIN (not really needed if #2 is available, but nice to have an shows that the processor cares about the merchant)
+
+Is there a good option? Thanks",anecdote,
+"Sure, there are servers, but the different grouping is the whole point because they're not coupling hosting to apps. When people say ""where are Bluesky instances"", they're asserting that it's useful to run many copies of the Bluesky database server. My article is an attempt to show that this way of thinking is very Mastodon-brained because these ""instances"" are the only unit of decentralization that's available in Mastodon. But you don't have to think this way.
+
+In atproto, you can swap hosting (without changing apps), and you can create and use different apps (without changing hosting). That's the thing you can't do in Mastodon because it hard-couples hosting + apps into monolithic ""instances"".
+
+In Mastodon, ""receiver"" and ""sender"" talk to each other, as you say. In atproto, hosting servers never talk to one another. The data from them flows into apps.
+
+You're right that there's often a firehose in the middle, but that's also misleading. There doesn't have to be one firehose — there's a bunch of community-ran ones. It's relatively cheap to run one yourself these days (about $30/mo). It's easy to pool them between apps. And many apps don't use Firehose at all, and instead query community indexes like Constellation (https://constellation.microcosm.blue/). So ""one firehose"" is misleading.",analysis,
+"Like sqlite, duckdb is underappreciated as a production database. You can totally run it on servers or even ""serverless"" and do some heavy data transformations or with the right server size work with large scale datasets (up to a TB compressed seems fine).",hot_take,
+"Lately, I’ve noticed a new trend on X: Devs (and indie hackers in particular) are ditching cloud providers and jumping straight to bare-metal servers like Hetzner.
+
+Honestly, I think the big cloud companies just haven’t kept up. Their services feel clunky compared to the standalone alternatives. Just try comparing Vercel’s dev experience to Amplify’s, and you’ll see what I mean. On top of that, AWS has gotten way stingier with startup credits.
+
+Put those two together, and it’s no surprise fewer people are hosting their MVPs on AWS. It’s tough to stay under $150/month with a database and a server, while on bare metal you can grab 16 GB RAM for around $20/month.
+
+- Do you think the cloud is actually losing ground?
+- And for those using bare-metal: how do you handle DB backups, CI/CD, and pulling logs?
+- Would you scale something using bare-metal servers?
+
+[Carlos](https://github.com/clostao)",hot_take,"While the cited costs may read as an analysis, this post has more vibe-driven observation than a structured, verifiable analysis. The comparison in costs is unspecified, which is actually illustrated by the questions following the claims: ""$150/month on AWS vs. $20/month for 16GB on Hetzner"" compares a managed, redundant, backed-up service against a single unmanaged box."
+"Hi HN,
+
+I have been working with regulation-heavy documents lately, and one thing kept bothering me. Flat RAG pipelines often fail to retrieve related articles together, even when they are clearly connected through references, definitions, or clauses.
+
+After trying several RAG setups, I subjectively felt that GraphRAG was a better mental model for this kind of data. The Microsoft GraphRAG paper and reference implementation were helpful starting points. However, in practice, I found one recurring friction point: graph storage and vector indexing are usually handled by separate systems, which felt unnecessarily heavy for short-lived analysis tasks.
+
+To explore this tradeoff, I built GibRAM (Graph in-buffer Retrieval and Associative Memory). It is an experimental, in-memory GraphRAG runtime where entities, relationships, text units, and embeddings live side by side in a single process.
+
+GibRAM is intentionally ephemeral. It is designed for exploratory tasks like summarization or conversational querying over a bounded document set. Data lives in memory, scoped by session, and is automatically cleaned up via TTL. There are no durability guarantees, and recomputation is considered cheaper than persistence for the intended use cases.
+
+This is not a database and not a production-ready system. It is a casual project, largely vibe-coded, meant to explore what GraphRAG looks like when memory is the primary constraint instead of storage. Technical debt exists, and many tradeoffs are explicit.
+
+The project is open source, and I would really appreciate feedback, especially from people working on RAG, search infrastructure, or graph-based retrieval.
+
+GitHub: https://github.com/gibram-io/gibram
+
+Happy to answer questions or hear why this approach might be flawed.",explanation,"While the post starts with and is motivated by a personal experience (""I have been working with regulation-heavy documents,"" ""one thing kept bothering me,"" ""I subjectively felt that GraphRAG was a better mental model""), most of its content is describing the idea introduced. For example, what GibRAM is, how it's scoped, that data lives in memory with TTL cleanup, that it's ephemeral, that it's not a database. These are statements about how the thing works and what it is. That's exposition, not argument, and so it cannot be considered analytical."
+"Hey HN, cofounder of Artie here. We’ve built a real-time data replication tool that captures every row-level change in your source database and streams it to your warehouse in under 60 seconds.
+
+The last time I posted here, people had to book a call with us in order to access Artie. Today, that’s no longer the case. You can now connect your source and destination and start streaming immediately.
+
+I spent years of my career building large-scale data pipelines and experienced how difficult it was to get real-time data firsthand. I believed there must be a better way to stream data into our warehouse, which resulted in Artie being born. And now with AI agents, reducing data latency has become more and more crucial as agents need to make decisions off of fresh data.
+
+When I first started building Artie, I quickly learned that the components meant to keep CDC running smoothly are very much bolted on with tons of edge cases. Unfortunately in practice, they were not built to work together. We ended up dealing with schema drift, backfill race conditions, Kafka offset commits, and TOAST columns. I’d love to know if others have hit these same issues while building in-house.
+
+artie.com, would love feedback!",anecdote,
+"They seem similar at a glance but they’re quite different. You can think of SQLite as a transactional database while DuckDB is better used as an analytical database.
+
+I can see applications having valid reasons to use both. You can use SQLite as the catalog in duck lake systems, for example. SQLite is your metadata record, DuckDB is your ingestion/scanning/aggregating/joining engine.",explanation,
+"This is why I built https://saasufy.com/ - Vibe coders shouldn't trust themselves with backend security. Unfortunately, it's extremely difficult to get right. There's a lot to think about;
+
+- Schema validation with appropriate size limits on all relevant fields.
+
+- Authentication.
+
+- Access control.
+
+- Backpressure management and rate limiting in case a (possibly malicious) user tries to perform too many computationally expensive actions in a short time.
+
+- Ensuring that the actions of one user doesn't throttle another user which is connected to the same process/host, e.g. using async constructs to avoid freezing the main process.
+
+- DDoS mitigation.
+
+- Avoiding race conditions.
+
+- Designing a good database schema, with well chosen indexes, with deterministic IDs/idempotency to avoid double-insertion scenarios. You don't want to be forced to rely on overly complex queries with a lot of joins. This doesn't scale well and rarely necessary.
+
+- Logging and error handling.
+
+- Avoiding conflicts and accidental overwrite with old data when multiple users are editing different fields of the same resource concurrently.
+
+- Efficient distribution of realtime messages.
+
+- Scalability.
+
+The list goes on and on... And every piece has to be implemented perfectly. This involves a huge number of carefully thought-out decisions.",analysis,
+"Yeah, I think this is a bad take on the part of the EFF.
+
+The full dataset will be in private hands and available everywhere to everyone to do anything the moment this goes live.
+
+I protect data for a living, cost asymmetry and proof of work are really the only tools we have.
+
+If this goes live, the next time I get subpoenaed to testify for something I'm going to throw in so many random but couched accusations at people just to screw them over when the data goes live at scale via data brokers and torrent dumps.
+
+Bill Jones (accused in court testimony of killing puppies) is requesting the HOA get off of his back.",hot_take,
+"Hi HN,
+
+I’m a solo dev building a clinical search engine to help my wife (a resident physician) and her colleagues.
+
+The Problem: Current tools (UpToDate/OpenEvidence) are expensive, slow, or increasingly heavy with pharma ads.
+
+The Solution: I built Evidex to be a clean, privacy-first alternative. Search Demo (GIF): https://imgur.com/a/zoUvINt
+
+Technical Architecture (Search-Based RAG): Instead of using a traditional pre-indexed vector database (like Pinecone) which can serve stale data, I implemented a Real-time RAG pattern:
+
+Orchestrator: A Node.js backend performs ""Smart Routing"" (regex/keyword analysis) on the query to decide which external APIs to hit (PubMed, Europe PMC, OpenAlex, or ClinicalTrials.gov).
+
+Retrieval: It executes parallel fetches to these APIs at runtime to grab the top ~15 abstracts.
+
+Local Data: Clinical guidelines are stored locally in SQLite and retrieved via full-text search (FTS) ensuring exact matches on medical terminology.
+
+Inference: I’m using Gemini 2.5 Flash to process the concatenated abstracts. The massive context window allows me to feed it distinct search results and force strict citation mapping without latency bottlenecks.
+
+Workflow Tools (The ""Integration""): I also built a ""reasoning layer"" to handle complex patient histories (Case Mode) and draft documentation (SOAP Notes). Case Mode Demo (GIF): https://imgur.com/a/h01Zgkx Note Gen Demo (GIF): https://imgur.com/a/DI1S2Y0
+
+Why no Vector DB? In medicine, ""freshness"" is critical. If a new trial drops today, a pre-indexed vector store might miss it. My real-time approach ensures the answer includes papers published today.
+
+Business Model: The clinical search is free. I plan to monetize by selling billing automation tools to hospital admins later.
+
+Feedback Request: I’d love feedback on the retrieval latency (fetching live APIs is slower than vector lookups) and the accuracy of the synthesized answers.",explanation,
+"The SELECT machinery is the product with databases! SQL often the shortest description of the processing logic, and the database has an efficient local execution engine that can prune/reduce data read based on the plan. Very hard to match in app, especially when joins get involved.",explanation,
+"Former SRE here, looking for advice.
+
+I know there are a lot of tools focused on root cause analysis after things break. Cool, but that’s not what’s wearing me down. What actually hurts is the constant context switching while trying to understand how a system fits together, what depends on what, and what changed recently.
+
+As systems grow, this feels like it gets exponentially harder. Add logs and now you’ve created a million new events to reason about. Add another database and suddenly you’re dealing with subnet constraints or a DB choice that’s expensive as hell, and no one noticed until later. Everyone knows their slice, but the full picture lives nowhere, so bit rot just keeps creeping in.
+
+This feels even worse now that AI agents are pushing large amounts of code and config changes quickly. Things move faster, but shared understanding falls behind even faster.
+
+I’m honestly stuck on how people handle this well in practice. For folks dealing with real production systems, what’s actually helped? Diagrams, docs, tribal knowledge, tooling, something else? Where does it break down?",anecdote,
+Military installations currently need to be sanitized and cleaned out. Will be working on later today. The source is unreliable and much of the data can be stored internally instead of public dataset.,explanation,"It may be clearer by looking at the context of this post from its original URL, but from the text itself, this post is trying to explain some requirements that are unfulfilled (""currently need to be sanitized"") and describe a possible alternative (""the data can be stored internally""). Admittedly, the explanation is rather vague and terse, but it is closer to explanation than an analysis (not an argument with supporting evidence and examples), an anecdote (no personal story or experience) or a hot-take (no position or bold opinion stated)."
+"Thanks!. It runs on my server, and it lives in the platform. So, the experience I want to give users is that every tool they want AI to build should feel like it's part of the platform. So, they don't need hosting or domain. All technical infra like database is built-in.",explanation,
+"Excluding the Hadoop ecosystem, I see some references to MapReduce in other database and analysis tools (e.g., MatLab). My perception was that Spark completely superseded MapReduce. Are there just different implementations of MapReduce and the one that Hadoop implemented was replaced by Spark?",explanation,"RELABEL hot_take->explanation(default): a question with no staked position or register ('my perception was Spark superseded MapReduce, are there different implementations?'); no question label, so defaults to explanation."
+"My experience is a few decades old but it was pretty simple. Some servers for the text and some for the images. The data is super cacheable, the hot set is really hot (current listings), and storing text and some image pointers is pretty simple for even a moderate database (which can be split by metro).
+
+I was on the security team for eBay/PayPal at the time they took a minority stake in Craigslist, and one of the jobs we got was securing their infrastructure (they didn't have a security team).
+
+I wonder if they still have that arrangement with eBay...",anecdote,
+"AI agents can perfectly do a lot of the data entry tasks and build dashboards. You practically need to build none of that when you can ask an AI agent to pull the data and build a chart or provide a file or a paste to insert into a database.
+
+Basically that.
+
+If the app requires a mouse then it should have UI, if not, unless critical, it can be driven by an agent.
+
+That's my point.",hot_take,
+"Hi HN, we’re Luke and Phillip, and we’re building Spice.ai OSS - a lightweight, portable data and AI engine and powered by Apache DataFusion & Ballista for SQL query, hybrid-search, and LLM-inference across disaggregated-storage used by enterprises like Barracuda Networks and Twilio.
+
+We first introduced Spice [1] on HN in 2021 and re-launched it on HN [2] in 2024 re-built from the ground up in Rust.
+
+Spice includes the concept of a Data Accelerator [3], which is a way to materialize data from disparate sources, such as other databases, in embedded databases like SQLite and DuckDB.
+
+Today we’re excited to announce a new Ducklake-inspired Data Accelerator built on Vortex [3], a highly performant, extensible columnar data format that claims 100x faster random access, 10-20x faster scans, 5x faster writes with a similar compression ratio vs. Apache Parquet.
+
+In our tests with Spice, Vortex performs faster than DuckDB with a third of the memory usage, and is much more scalable (multi-file). For real-world deployments, we see the DuckDB Data Accelerator often capping out around 1TB, but Spice Cayenne can do Petabyte-scale.
+
+You can read about it at https://spice.ai/blog and in the Spice OSS release notes [4].
+
+This is just the first version, and we’d love to get your feedback!
+
+GitHub: https://github.com/spiceai/spiceai
+
+[1] https://news.ycombinator.com/item?id=28448887
+
+[2] https://news.ycombinator.com/item?id=39854584
+
+[3] https://github.com/vortex-data/vortex
+
+[4] https://spiceai.org/blog/releases/v1.9.0",explanation,"This post is dominantly explanatory. The structure is announcement-shaped: here's who we are, here's the history (2021, 2024 rebuild), here's what a Data Accelerator is, here's the new thing, go read more. Most sentences describe what exists rather than why one choice beats another. Cting numbers isn't analyzing. The numbers here are stated as outcomes, rather than to support a concluding proposition."
+"https://github.com/datasette has 119 - but there are also 232 under my simonw account from before I started the Datasette org: https://github.com/simonw?tab=repositories&q=Datasette-&type...
+
+Most of them predate coding agents. I started the Datasette project in 2017.
+
+In fact we can answer this with Datasette! Here's a query showing the 111 packages with at least one release prior to ChatGPT on Nov 30 2022: https://datasette.simonwillison.net/simonwillisonblog?sql=wi...
+
+And this is that same query for Claude Code (Feb 24 2025) - which returns 172:
+
+https://datasette.simonwillison.net/simonwillisonblog?sql=wi...
+
+I'm at 205 today (some of the repos on GitHub aren't plugins, and some in the datasette org were written and released by Alex Garcia which excludes them from my own releases database).
+
+Most of the plugins I wrote this year have been heavily AI-assisted, but that wasn't the case for the older ones. Here's my post from October 2025 when I first realized Claude Sonnet 4.5 could one-shot a plugin for me: https://simonwillison.net/2025/Oct/8/claude-datasette-plugin...
+
+The reason there are so many repos is that Datasette uses a plugin architecture, which makes it much easier to try out different features without risk of corrupting the core project with things that turn out to be bad ideas.
+
+I gave a talk about plugin architecture at DjangoCon a couple of years ago: https://2024.djangocon.us/talks/how-to-design-and-implement-...",analysis,
+"Zero dependencies. No external databases. Single binary. Just deploy and go. I needed something that would allow for real-time monitoring, and installation is as simple as dropping a single file and running it. That's exactly what Kula is. Kula is the Polish word for ""ball,"" as in ""crystal ball."" The project is in constant development, but I'm already using it on multiple servers in production. It still has some rough edges and needs to mature, but I wanted to share it with the world now—perhaps someone else will find it useful and be willing to help me develop it by testing or providing feedback. Cheers! Github: https://github.com/c0m4r/kula",anecdote,
+"I was frustrated with photo sharing sites. Apple's iCloud shared albums take 20+ seconds to load, and everything else comes with ads, cumbersome UIs, or social media distractions. I just want to share photos with friends and family: fast, mobile-friendly, distraction-free.
+
+So I built DD Photos. You export photos from whatever you already use (Lightroom, Apple Photos, etc.) into folders, run `photogen` (a Go CLI) to resize them to WebP and generate JSON indexes, then deploy the SvelteKit static site anywhere that serves files. Apache, S3, whatever. No server-side code, no database.
+
+Built over several weeks with heavy use of Claude Code, which I found genuinely useful for this kind of full-stack project spanning Go, SvelteKit/TypeScript, Apache config, Docker, and Playwright tests. Happy to discuss that experience too.
+
+Live example: https://photos.donohoe.info
+Repo: https://github.com/dougdonohoe/ddphotos",anecdote,
+"They have over 3000 stores. Maybe each one has a handful of VMs.
+
+Maybe each self-service checkout runs a VM, or each staffed checkout.
+
+They wouldn't want to rely entirely on a remote database to be able to sell products.",analysis,"RELABEL hot_take->analysis: calm bottom-up estimate (3000 stores x VMs, don't rely on remote DB) reasoned to a verdict; same genre as [152] (40k VMs), which is analysis. No register."
+I have a database on my local machine with 200 million records in one table and 2 other related tables. Even the most complex queries take about 1 minute to vibe code and paste into the DuckDB browser playground UI and always less than 5 seconds to return the result. For a humble product manager it feels like a superpower.,anecdote,
+"After spending over 15 years in the industry, running a business and multiple successes and failures with SaaS products, here's my conclusion:
+
+Marketing >>>> Engineering + Sales + <add any business function of your choice>
+
+Before anyone of you gets offended, let me tell you, I'm an engineer turned marketer. I love building products. Give me my code editor (and some coffee) and you'll see a happy man building awesome products.
+
+A few years ago, I came up with really amazing ideas and built products with neat UI, scalable backend and beautiful database structure. Something I'd feel proud to show to my engineer friends.
+
+But the world out there is brutal. It doesn't care how beautiful your codebase is, how every method is well-documented and how it can handle 10000 simultaneous users with $20 droplet.
+
+I could not believe my first two failures. I mean, I couldn't find one solid reason people didn't want to use my product. I even tried giving it away for free. It didn't work.
+
+I decided to change my approach.
+
+I began observing people who were successfully selling SaaS. I was shocked.
+
+- No one had an 'innovative' product.
+
+- Everyone operated in markets that had competition
+
+- Everyone was busy marketing; even their half-ready product and still making money.
+
+My world-view was different than what I saw in the markets. I needed to adapt.
+
+Now, I have a SaaS that's making money, users are interested and I'm learning the art of sales. My focus now is marketing and solving people's problems. That's the only way to win.
+
+I hope this helps my fellow SaaSpreneurs. No matter how much you hate it: Marketing is bigger than your code, engineering and sales.",hot_take,"""Marketing >>>> Engineering + Sales + anything"" is a deliberately provocative, ranked, universal assertion. That's the hot-take signature: a strong, contrarian-flavored thesis stated as a general law, designed to land hard and start an argument. The closing ""no matter how much you hate it"" are pure hot-take register; it's rather rage-baiting. The anecdote is the evidence. Everything supporting the claim is personal narrative, which is inflated into a universal ranking of business functions. So, hot-take is the better single label than anecdote, because the defining feature is the provocative universal claim, not the story underneath it."
+"The concept for metiq.space came after playing Global Magnates with friends and realizing how fragmented live global data is. ships, aircraft, satellites, ports, weather, hazards, infrastructure, cyber, and public datasets all exist, but they usually live in separate tools and maps.
+
+The goal was to build one interactive 3D globe where live public data could be visualized by latitude, longitude, and altitude. Surface data stays on the globe, while aircraft, satellites, and other above surface things can be represented in actual 3D space instead of being flattened onto a map.
+
+The outcome is an interactive globe that showcases Earth, air, sea, space, cyber, defense, infrastructure, politics, and the list is continuously growing.
+
+Majority of development right now is going into data filtering and deduping.",anecdote,
+"Here is the thing, it’s a write only single file format. If you need to run analytical queries it’s optimized for reading, you just open a file and query for the parts you want. If you have multiple clients that read and write data to the database, you should use postgresql.
+
+It’s not really a database in the traditional sense, there is no ACID complexity, it’s a library that lets use write SQL to query a tabular data file.",explanation,
+"> How would that attacker gain access to such databases?
+
+Data breaches happen all the time.
+
+Some services also expose emails, intentionally or unintentionally. Github is one example where your email might be exposed publicly.
+
+> How does that help you track me elsewhere? If I start receiving spam at hn@mydomain.com because of the leak, I will simply revoke the alias, and the spam will bounce.
+
+Because, as parent said, if someone deduces that you are the only user of mydomain.com, they can just search leaked or exposed records for @mydomain.com and infer that the accounts most likely belong to the same person.
+
+That's the difference, with hide my email millions of unrelated people share the same domain, so you can't reliably link one email to another just based on the domain.",explanation,
+"Native software is incredibly difficult to build well.
+
+There are at least 4 platforms they would need to support: Win, Mac, iPhone, and Android.
+
+That's 4 different software engineers at least, just for the frontend.
+
+Then, there's various backend engineers, who could be shared, yes, but not always. Android's weird runtime requirements are bespoke enough that just because the database is written in C++, doesn't mean it's the same C++ database as what the Windows backend would use.
+
+Finally, there's the designers, who end up consolidating all the unique things about each native platform into a common design language so they can have a shared vision on all of the platforms. So engineers end up building UI that works identically on all 4 platforms, and you're basically building a bespoke ""browser"" at that point.",analysis,
+"Is the statement in the linked article that ""The Internet Movie Database functions as a loss leader for the e-commerce giant"" backed up somewhere?
+
+IMDB offers both Pro Subscriptions. IMDB offers data licenses that the company claims are licensed ""to a wide selection of businesses including movie studios, cable companies, websites, video retailers, software developers, electronics manufacturers, mobile applications, and more.""[1]
+
+IMDB offers advertising and has 250M visitors per month.[2]
+
+None of these point to the likelihood that IMDB is a loss leader.
+
+1 = https://help.imdb.com/article/imdb/general-information/conte...
+2 = https://advertising.amazon.com/channels/imdb",analysis,
+"> What happened in 2025 was this: the economics of code production were turned upside down. Instead of being very hard, time-consuming, and expensive to generate code, it became effectively free and instant. Lines of code went from being treasured, reused, cared for and carefully curated, to being disposable and regenerable, practically overnight.
+
+I've been thinking about this a whole lot recently. So much of my intuition about software development is based on 25 years of accumulated experience on how long it will take to write different bits of code.
+
+Should I add validation for this one edge-case which won't break everything but will make a little bit of a mess if someone hits it? If that's an extra couple of hours of code I might skip it. If it's one more prompt, why wouldn't I?
+
+This new feature would be a lot easier to understand if there was a custom API explorer for it. There's no way I could justify investing in that... unless it's just 10 minutes with Codex, and it was: https://tools.simonwillison.net/datasette-extras-explorer#ur... (linked from the release notes https://docs.datasette.io/en/latest/changelog.html#extra-sup...)
+
+That's just on the small scale. There are entire projects that I'd never previously have considered, because I don't need a custom SQLite SELECT query parsing library enough to justify spending a week or more building one. But now... https://github.com/simonw/sqlite-ast
+
+People get VERY upset (and condescending) any time you suggest that being able to produce lines of code faster is a valuable thing. And sure, measuring output through ""lines of code"" is stupid.
+
+But measuring ""lines of verified code that deliver valuable"" isn't stupid at all. That's the thing we can do faster now.",analysis,
+"I work in automating conversions off VMware and 40,000 VMs is just a lot of data to move. We could probably do 500-1000 / day which would be 3 months, but that would be best case, and there's a lot of prequalification where you examine classes of VMs to check what software they're running and identify the unsupported / difficult cases. That planning would add extra months.
+
+In some cases you can do zero copy conversions, so downtime can be done in a few minutes, but it relies on the customer have very particular storage configurations (NetApp basically). In other cases there can be significant downtime that needs to be scheduled. I worked one case where the customer shut down several production lines over a number of weekends so we could convert the workloads. (Everything was meticulously planned, along with fallbacks that thankfully we did not need to use.)
+
+Some things you don't convert at all. Databases generally get replicated at DB level to new hardware. Single-purpose appliances need to be reprovisioned by going back to the vendor and asking for a KVM equivalent.
+
+Then there's all kinds of craziness, like we had customers who rolled their own backup solutions where we had to add special cases to the software to detect and ignore the backup partitions. Or people running Windows 95 or RHEL 3 (for real!) where there are no virtio drivers and we don't certify the hypervisor so it requires support exceptions. At this point people have been using VMware for nearly 30 years, there's all kinds of crazy legacy.",explanation,"The surface markers are anecdotal: heavy first person (""I work in automating conversions,"" ""I worked one case""), and one fully-formed war story, but the comment is actually using experience as a source of expertise to explain how a domain works. It's not arguing a thesis from personal experience. The dominant structure is generalized process knowledge (""throughput: 500-1000 VMs/day"", ""conditions: zero-copy needs NetApp-style storage""), which is not some personal story, but they're explanatory claims about categories (""databases generally get replicated,"" ""single-purpose appliances need reprovisioning"")."
+"One of the reasons I left the game industry, or at least one the benefits of leaving was to not have to use Perforce any longer. Albeit a necessary evil, hopefully lore is better.
+
+I always wondered if a combination of a database to index assets and asset versions with the data being in S3 style storage would be better for game assets; code can be in Git. 
+Then your workflows are easy to build on top of that.",anecdote,
+"As developers, we're caught between keeping up with our internal stakeholders (operations, business, and data teams) and satisfying external end users. We spend a nontrivial amount of time maintaining our code to keep up with complex, ever-changing business logic.
+
+Do we really need a code change for changing what triggers which user notifications or for updating how something gets named/logged in the database?
+
+Unfortunately, maintaining code is also not considered valuable work. We're valued for pushing out new features, and keeping existing features up to date with changing business logic is considered short work.
+
+To be great devs, we need to understand our users (including internal stakeholders) and our industry domain. But we also need a better way to empower business teams to control and manage the business logic, while clearing the runway for devs to build the next feature.
+
+How has your team handled this?",explanation,"RELABEL hot_take->explanation: measured account of the dev/business-logic dynamic ending in a prompt ('How has your team handled this?'); mild positions, no provocation/register. (weak analysis defensible)"
+"As mentioned below I have been building the 'read' side of this: a data publication platform. I wanted to avoid any server side components. The communication / write part and updating the server-side sqlite database would need running components on the server which I wanted to avoid.
+
+The 'write' part would technically be very doable and not that different from other back-ends.
+
+https://github.com/GhentCDH/Pihka",anecdote,
+"I would choose promox or ovirt (oracle virtualiztion manager is pretty nice, I use it because the licence of the only oracle database of our institution requires it, that and a specialc cores pinning configuration, to avoid licensing every cores in all clusters, https://houseofbrick.com/wp-content/uploads/2015/03/Oracle-P... ) but it's oracle so we went with proxmox.",anecdote,
+"Hey all, I made this. The archive started with my 2015 BA thesis on Amiga ASCII art when I was curious about the history of ASCII art but found very little on text art that came before it. The historical precursors are often attributed to typewriter art and shaped/visual poetry, but I think letterpress is overlooked. So, I got slightly obsessed and started a personal database of pictures built entirely from metal type, ornaments, and rule, some going back to the 1600s. After eight years, I've managed to find ~2500 images. My friend Adel Faure built the website so it's now browseable by anyone!
+
+I would like to note that most images are from public digital collections (Internet Archive, national libraries, etc.) and displayed without permission (for educational purposes). I've tried to source every image, but check the original source and its license before reusing anything. I'd be happy to take down or correct anything.
+
+It's also incomplete and surely has errors and misattributions. Corrections to anything are very welcome.
+
+If anyone has leads on works I haven't catalogued, I'd love to hear them! The practice and pictures are scattered across languages and keywords (type picture, typosignet, typotectur, Bildsatz, stigmatypie, stunt typography...), so things hide in odd corners of archives. If you've seen something like this, please point me at it.
+
+There's also a longer essay on how it began:
+https://garden-of-flowers.heikkilotvonen.com/?essay",anecdote,
+"I built DDL to Data after repeatedly pushing back on ""just use production data and mask it"" requests. Teams needed populated databases for testing, but pulling prod meant security reviews, PII scrubbing, and DevOps tickets. Hand-written seed scripts were the alternative slow, fragile, and out of sync the moment schemas changed.
+
+Paste your CREATE TABLE statements, get realistic test data back. It parses your schema, preserves foreign key relationships, and generates data that looks real, emails look like emails, timestamps are reasonable, uniqueness constraints are honored.
+
+No setup, no config. Works with PostgreSQL and MySQL.
+
+https://ddltodata.com
+
+Would love feedback from anyone who deals with test data or staging environments. What's missing?",explanation,"Stripping the first-person frame: a lot survives: a description of what the tool does (parses your schema, preserves foreign keys, generates realistic-looking data, honors uniqueness constraints) and the problem it addresses (prod-masking means security reviews and PII scrubbing; seed scripts go stale on schema change). That standalone-survival is the explanation signature. The personal frame is establishing why he built it, but the body is describing how a thing works, which stands on its own."
+"Yeah, Relays are one way to do that. I've mostly skipped them because they're an invisible optimization and there are other strategies. E.g. many smaller apps today rely on Constellation (https://constellation.microcosm.blue/) instead of building their own database index, so they don't use a Relay at all.",explanation,
+"> In the old days, we would have cried about 150MB memory usage idle as being bloat.
+
+I'm curious how much of those 150 are things that can't be boiled down to 'text', since that should be roughly the same size as on completely un-bloated software. The database of emails, the plain text of said emails, and all the basic UI should all be nothing but text and take up next to nothing.
+
+Images on the other hand. I'd imagine Outlook Classic hasn't been made with 1 MB PNGs for all their icons, so it's probably not that that's pulling the memory usage, although it's probably contributing. Meanwhile, New Outlook (New) probably didn't optimise a single thing, so it probably is using 1 MB icons, which then quickly piles up. Not to mention the whole webview rendering backend, since we apparently can't make anything without going through a few layers of abstraction first.",analysis,"RELABEL hot_take->analysis: reasoning about where 150MB goes (text trivial, images/webview the cost), hedged; light snark is flavor, not the mode. (explanation defensible)"
+"Your argument went from ""big number good"" to redefining ""stupid"", and you think that somehow supports your original statement?
+
+What word would you use to describe someone that:
+
+ - told you to put glue on pizza?
+ - thinks there's 1 'r' in strawberry?
+ - is incapable of stopping terminal flickering? 
+ - deletes your production database?
+ - bankrupts you trying to scan the entire IPv6 address space of a play network interface?
+ - can only attempt to draw a bird on a bike in the most bland and unimaginative style possible yet still completely failing?
+
+All while being given the entire US economy and polluting the only planet we have to do so?",hot_take,"While the opening clause (""went from 'big number good' to redefining 'stupid'"") is a genuine analytical observation, that is the only analytical part of the comment. It's immediately abandoned for the rhetorical-question-plus-list assault. It's adversarial, aimed at a specific interlocutor, which pushes it further from standing analysis toward combat. Hot-takes are often this: a sharp position thrown at someone."
+"I discovered ClickHouse around 2017-18 and built a PoC to replace Elasticsearch: 5x better storage and qps, in a couple of weeks.
+
+Managers rejected it because it wasn't well known and was seen as ""some database made by Russians.""
+
+On a personal level, it's quite sad to have seen that train coming so early and not been able to get on board.",anecdote,
+"Few months month ago, Someone asked on Twitter “Do you read programming books? If yes, why?”. You can read my answer in the tweet,
+
+Here are mine, in order of how a developer starts their journey, from basic to scaling problems:
+
+1. Code: The Hidden Language of Computers (Pure Basic: Starting with Binary)
+2. Working Effectively with Legacy Code (Dealing with an ugly codebase)
+3. Refactoring Improve the design of the existing codebase (Making changes safely without breaking the code)
+4. Test-Driven Development (TDD) (Once you’ve learned all the above, you always start writing tests first)
+5. Head First Design Principles (Terminology and concepts for maintainable and extendable design)
+6. Algorithms to Live By (Algorithms are fundamental ideas before we write any code)
+7. Git Pro (Software cannot run without a Version Control System (VCS). We use it every minute of our working day)
+8. Your Code as a Crime Scene (Finding problems in the code using code history)
+9. Data-Intensive Applications (Databases are everywhere)
+10. Software Engineering at Google (Addressing the biggest scaling problems)
+
+Honorable Mentions:
+1. Clean Code (Writing code that is easy to understand by other developers)
+2. The Soft Skills (Coding alone is not enough to be a great software engineer)
+3. Peopleware (Managing software teams).
+
+Also, I am planning to write a short book summarizing all the important points from these above books. If you are interested in getting one or want to be part of an early reader, please email me at burhanrashid5253@gmail.com.",explanation,"This comment is a curated list / recommendation, a sequenced reading list where each entry carries a why. Those parenthetical justifications are explanatory claims. The organizing thesis (""in order of how a developer starts their journey, basic to scaling"") is itself an explanatory framing: it's explaining a learning progression, not just dumping titles."
+"Hi HN,
+
+I built WARN Firehose because I was frustrated trying to track layoff data across the US. The WARN Act requires companies with 100+ employees to file public notices 60 days before mass layoffs — but the data is scattered across 50 state websites with different formats, broken links, and no API.
+
+WARN Firehose scrapes every state workforce agency daily and normalizes the data into a single database going back to 1988. It now has 131,000+ notices covering 14 million workers.
+
+*What you can do:*
+
+- Browse interactive charts and data tables (no account needed): https://warnfirehose.com/data
+- Drill into any state, city, company, or industry: https://warnfirehose.com/data/layoffs
+- Query the REST API (free tier: 100 calls/day): https://warnfirehose.com/docs
+- Export in CSV, JSON, NDJSON, Parquet, or JSON-LD
+- Set up webhooks for real-time alerts on new filings
+
+*Who uses this:*
+
+- Journalists breaking layoff stories before press releases
+- Quant funds using WARN filings as an alternative data signal (filings happen ~60 days before layoffs)
+- Recruiters sourcing from displaced talent pools
+- Researchers studying labor market dynamics
+- Workforce development boards doing rapid response planning
+
+*Tech stack:* Python/FastAPI, SQLite, scrapers for all 50 states, static HTML generation for SEO pages, Claude Haiku for AI analysis, deployed on EC2.
+
+Free tier is genuinely useful (100 API calls/day, dashboard access, charts). Paid plans start at $19/mo for full historical data and bulk exports.
+
+Would love feedback on the API design, data quality, or anything else. Happy to answer questions.",explanation,
+"My wife and I run a small chain of second-hand clothing stores and maintain our own custom point-of-sale system that handles us buying our inventory directly from our customers who sell to us. The database and API run on AWS in the Canadian data center. We have contingencies for total system failure, but it's not a fun way to limp along doing business.
+
+We are concerned we are an executweet away from having those AWS services cut.
+
+Any other Canadian business here migrating away from AWS as a precaution?",anecdote,
+"If you've ever had to work with nontrivial procs in MySQL/MariaDB, it's immediately clear how the status quo is deficient there, and why e.g. Postgres's multi-language support is so much better in comparison.
+
+And how is it ""minutiae"" to be able to figure out ""is my database version actually supported""? This is the fourth versioning scheme they've used in less than a decade, that's a bit nuts I think.",hot_take,"The second point contains a real, checkable claim — four versioning schemes in under a decade. That's a concrete factual assertion an analysis could be built on, more grounded than the pure contempt-stacking of the glue-on-pizza list. If he'd laid out the four schemes and reasoned about why the churn causes support-detection problems, it'd tip to analysis. But as written it's the claim deployed as ammunition (""that's nuts"") rather than developed and properly evaluated."
+"That's fine for database-like meta-data (e.g. game entity properties), but not for images, videos or audio files. Just writing those as hex dumps into text files doesn't make them any easier to merge.",analysis,"RELABEL hot_take->analysis: calm reasoned distinction (text-like metadata is mergeable; hex-dumped binaries are not), no register. (explanation defensible)"
+"I have a version of Datasette that runs entirely in the browser (using Pyodide and WebAssembly) and it's smaller than a lot of modern React homepages (12.35MB):
+
+https://lite.datasette.io/
+
+My more recent prototype shrinks that to 10.47 MB transferred: https://simonw.github.io/research/pyodide-asgi-browser/datas...",anecdote,
+"Obviously censorship of both the location of ICE agents (or other terrorist threats bearing state decals) and censorship of discourse over the science of respiratory pathogens has been awful; I don't recall anyone here on HN cheerleading either of them.
+
+In fact, it seems to me that you've chosen precisely two areas between which a palpable bridge exists, contradicting the two-party zeitgeist.
+
+HN, for all its many flaws, is one of the few places where important evidence such as the diamond princess dataset and the cochrane review of evidence of mask (in)efficacy received robust discussion and, seemingly, resulted in changed minds.
+
+Likewise, I don't recall anyone but a few trolls suggesting that Apple's assistance to ICE in covering its tracks was a legitimate exercise of state (to the extent that pressure was a factor) or corporate (to the extent that it created market esteem) pressure.",analysis,
+"micasa is a terminal UI that helps you track home stuff, in a single SQLite file. No cloud, no
+account, no subscription. Backup with cp.
+
+I built it because I was tired of losing track of everything in notes apps, and ""I'll remember
+that""s. When do I need to clean the dishwasher filter? What's the best quote for a complete
+overhaul of the backyard. Oops, found some mold behind the trim, need to address that ASAP. That
+sort of stuff.
+
+Another reason I made micasa was to build a (hopefully useful) low-stakes personal project where
+the code was written entirely by AI. I still review the code and click the merge button, but 99%
+of the programming was done with an agent.
+
+Here are some things I think make it worth checking out:
+
+- Vim-style modal UI. Nav mode to browse, edit mode to change. Multicolumn sort, fuzzy-jump to
+ columns, pin-and-filter rows, hide columns you don't need, drill into related records (like
+ quotes for a project). Much of the spirit of the design and some of the actual design choices
+ is and are inspired by VisiData. You should check that out too.
+- Local LLM chat. Definitely a gimmick, but I am trying preempt ""Yeah, but does it AI?""-style
+ conversations. This is an optional feature and you can simply pretend it doesn't exist. All
+ features work without it.
+- Single-file SQLite-based architecture. Document attachments (manuals, receipts, photos) are
+ stored as BLOBs in the same SQLite database. One file is the whole app state. If you think
+ this won't scale, you're right. It's pretty damn easy to work with though.
+- Pure Go, zero CGO. Built on Charmbracelet for the TUI and GORM + go-sqlite for the database.
+ Charm makes pretty nice TUIs, and this was my first time using it.
+
+Try it with sample data:
+go install github.com/cpcloud/micasa/cmd/micasa@latest && micasa --demo
+
+If you're insane you can also run micasa --demo --years 1000 to generate 1000 years worth of
+demo data. Not sure what house would last that long, but hey, you do you.",explanation,"Again, strip the first-person motivation — ""I built it because I was tired of losing track… 'I'll remember that's"" — and a large, intact body survives: a structured description of how micasa works. Vim-style modal UI with the navigation/edit split, single-file SQLite architecture with BLOB attachments, pure Go / zero CGO on Charmbracelet + GORM, the optional local LLM. Those are claims about how the thing works and how it's built that stand on their own. That standalone survival is the explanation signature."
+"In the late 2000s and early 2010s, I remember seeing lots of hype around building distributed systems using message queues (e.g. Amazon SQS, RabbitMQ, ZeroMQ, etc.) A lot of companies had blog posts highlighting their use of message queues for asynchronous communication between nodes, and IIRC the official AWS design recommendations at the time pushed SQS pretty heavily.
+
+Now, I almost never see engineering blog posts or HN posts highlighting use of message queues. I see occasional content related to Kafka, but nothing like the hype that message queues used to have.
+
+What changed? Possible theories I'm aware of:
+
+* Redis tackled most of the use-case, plus caching, so it no longer made sense to pay the operational cost of running a separate message broker. Kafka picked up the really high-scale applications.
+
+* Databases (broadly defined) got a lot better at handling high scale, so system designers moved more of the ""transient"" application state into the main data stores.
+
+* We collectively realize that message queues-based architectures don't work as well as we hoped, so we build most things in other ways now.
+
+* The technology just got mature enough that it's not exciting to write about, but it's still really widely used.
+
+If people have experience designing or implementing greenfield systems based on message queues, I'd be curious to hear about it. I'd also be interested in understanding any war stories or pain points people have had from using message queues in production systems.",analysis,
+"Pangolin (https://github.com/fosrl/pangolin) is an open-source tool for identity-based remote access to internal resources - an alternative to Cloudflare ZTNA, Zscaler, and Twingate.
+
+It’s different than existing approaches: mesh VPNs (Tailscale, ZeroTier, etc.) create flat overlay networks where ACL and IP space management becomes complex at scale and every device can talk to every other device, while corporate ZTNA solutions (Zscaler, Cato, Netskope etc.) are closed-source and add latency by forcing traffic through a central server.
+
+Pangolin takes a resource-centric approach. You deploy lightweight connectors that bridge to specific resources (private web apps, SSH, databases, CIDR ranges). Admins delegate resource-access to specific users and roles. It uses WireGuard with NAT hole-punching for peer-to-peer connections and traffic goes directly between the user and connector instead of through a central server. It supports native clients (Mac/Windows/Linux/iOS/Android) plus identity-aware, browser-based access when a client isn’t required.
+
+Pangolin has a cloud and is optionally self-hosted. The Community Edition is AGPLv3. The Enterprise Edition is also open-source under the commercial license which enables free personal/small business use.
+
+Everything, from the server to the clients, is fully open-source and you can even self-host the whole stack. We’d love to hear what you think and I'm happy to answer any questions!",explanation,"Most of the comment is explanation in the clean sense: what Pangolin is, how it works (lightweight connectors bridging to specific resources, WireGuard with NAT hole-punching, peer-to-peer instead of central-server routing, native clients plus browser access), and the licensing breakdown. Those are how-it-works and what-it-is claims that stand on their own. The author's analytical claim is in one paragraph where he characterizes two competing categories and names a specific weakness of each, then positions Pangolin's resource-centric, peer-to-peer design as the answer to both named weaknesses. However, the comparison is asserted, as supporting a feature description, rather than supporting a position taken."
+"There are lots of relational databases today; MySQL, Postgres, Oracle etc. But IBM's System R established the pattern in 1974, and later IBM products SQL/DS and DB2. And of course their competitor, Oracle. OpenClaw might not have been the absolute exact first, but it did establish the pattern and is the head of the family tree of modern agents, stretching back, oh, about 7 months now. Of course there will be better architectures. Functional AI Agents deployable at home didn't exist a year ago.",analysis,"Whole comment is a single historical-analogy argument — reasons from a verifiable parallel (System R, not strictly first, established the relational pattern → SQL/DS, DB2, Oracle) toward the conclusion that pattern-setting matters more than being absolute-first, so OpenClaw heads the agent ""family tree"". While it is admittedly a borderline analysis (evidence verifies the analogy's premise, but the OpenClaw-fits-the-template claim is asserted, not evidenced), the dominant mode is analysis."
+"You motivated why they need a big database. Still unclear to me why they need 40k VMs and not just 100.
+
+Its ok for Amazon to do it since they paid for the physical machines anyway and they want to dogfood their AWS services, it does not make sense for someone who rents compute and licenses.",analysis,RELABEL hot_take->analysis: calm reasoned skepticism ('why 40k not 100') with an Amazon-owns-hardware vs renter-pays-licenses distinction; no register.
+"Hey HN! We made GETadb.com, so it's easier to get agents to build you full stack apps. You don't need to give them any credentials. Just by loading a GET request, they get access to a database, a sync engine, and abstractions for auth, presence, and streams.
+
+To see what the agent sees, you can load https://getadb.com/new
+
+There's two fun things about how it's implemented:
+
+1. If you curl the home page, it the agent content rather than human content. We do this by detecting the 'Sec-Fetch-Mode' header. It's not perfect, but gets the job done for Claude Code et al.
+
+2. For an agent to spin up an app, they make _two_ fethes. (1) getadb.com/guide tells them to generate a uuid, and fetch (2) getadb.com/provision/<uuid>. We did this, because just about half of the popular web-based app builders cache URLs globally, even if you return no-store headers. To get around this we just instruct the agent to generate unique URLs
+
+You may wonder: Why GET requests, rather than POST requests? It's because then you can build in surprising places. For example, we get meta.ai to build an app inside the artifact preview: https://artifacts.meta.ai/share/a/b80c7412-c3af-4088-b430-78efdfe8ea2d
+
+Under the hood, this is possible because the whole infra is mult-tenant from ground up. We already announced how that works on HN, but if you're curious here's the essay for it: https://www.instantdb.com/essays/architecture",explanation,
+"Why would you prefer Python and Pandas over good old SQL? Pandas is so verbose and hard to debug, most of the times struggle to be performant on small datasets.
+
+SQL has been around since the dawn of databases. I am happy to see a trend away from pandas.",hot_take,
+"Amazing, and I love every pixel of it. We know the MLB is famously understanding with creative repurposing of their data, so I wonder what live data you are using and if the rationale for use is something like small scale hobby/fair use?
+
+I know when it comes to historical data, projects like the Sean Lahman Database have to go through quite a bit of trouble to reproduce ""clean room"" versions of historical data that are legally fine to use. I have to imagine there's a lot of complications when it comes to live data for anything that even has a hint of being more than a hobby project.",hot_take,
+"But... why.... from all possible protocols and options out there for secure, and less complex channels out there... they chose the so featureful and pure overhead as SSH... 
+
+ For low-latency VNC+Audio, why not WireGuard, WebRTC, QUIC etc.?
+
+ Yes, Dungeon Crawl Stone Soup approached it relatively similarly for WebTiles, yet... it's infinitely different magnificent titles... 
+
+ Oh... it's not them... it's Claude they used... or? Who knows, right? No one, including the priceless invaluable ideas of actual developers meat-ground into the Claude datasets now being sold for tokens... 
+
+ // https://i.imgur.com/FM4aTMZ.png - SSH
+ // https://i.imgur.com/9lZniqE.png - Claude",hot_take,
+"I'm going to think about how Datasette Apps can work with the apps themselves stored on a filesystem so they can be revision controlled using Git.
+
+I have an idea for a way to edit them through Datasette and have them backed up to Git via a separate mechanism, but having them on disk would be a whole lot more convenient.
+
+Filed an issue here: https://github.com/datasette/datasette-apps/issues/30",anecdote,
+"got tired of paying $29–99/month for simple contact forms on landing pages and side projects (Typeform, Tally, etc.).So I built GitForms: an open-source contact form that stores submissions as GitHub Issues.How it works:Form runs on your Next.js 14 site (Tailwind + TypeScript)
+On submit → creates a new Issue in your repo via GitHub API
+You get instant email notifications from GitHub (free)
+
+Zero ongoing costs:No database, no backend servers
+Deploy on Vercel/Netlify free tier in minutes
+Configurable via JSON (themes, text, multi-language)
+
+Perfect for MVPs, landing pages, portfolios, or any low-volume use case.Repo: https://github.com/Luigigreco/gitforms 
+License: CC-BY-NC-SA-4.0 (non-commercial only – fine for personal projects, not client work).Curious what HN thinks: would you use this? Any obvious improvements or edge cases I missed?Thanks!",explanation,"Strip the one-line motivation — ""got tired of paying $29–99/month for simple contact forms"" — and the whole body survives intact: how GitForms works (form on a Next.js site → submit creates a GitHub Issue via the API → GitHub sends free email notifications), the zero-cost architecture (no DB, no backend, free-tier deploy), JSON config, the use cases, the license. That's how-it-works exposition standing on its own."
+"ElasticSearch is fine. If your dataset isn't too big you aren't going to hit shard and memory limits and if you do chances are you are already in a large enough organisation that you'll have the manpower to do the required maintenance. It's not rocket science.
+
+> This seems to be coming from the “we must make ElasticSearch AI-compatible” department more than anything.
+
+I don't see the problem in that. It'd be great to have agentic capabilities embedded into Kibana and ES as long as it's not user hostile.",hot_take,
+"The exception is translation. Translation is what transformers were originally developed for. LLMs shine in translation, and creating code is, after all, a translation from natural language into a programming language.
+
+A lot of what current LLMs are good at seems to boil down to translation:
+
+* Translate some prompt into a planning list of individual TODOs
+
+* Treat each TODO as a new translation (e.g. from TODO to code), or call some external tool (lookup something on the internet, static code analysis, database request)
+
+* Translate the result(s) of these TODOs into a final text, or into a new TODO list
+
+To me, this is interesting, because maybe the Homo Sapiens intelligence simply developed as a side effect of communication (translating words into actions).",analysis,
+"I added the Feed feature to the site to make it more usable from mobile. You can scroll and discover important connections. I used Wikidata as source, ArangoDB as database, Redis for caching, Vue+ Cytoscape.js for frontend. If you are from desktop try Explore mode.",explanation,"There's a faint anecdotal frame — ""I added the Feed feature… to make it more usable from mobile"" is first-person and motivation-flavored. But strip it and the descriptive content (what it does, the stack, the desktop tip) survives, and that descriptive content is the point. There's no claim, no argument, no story, no tradeoff. Nothing to weigh and nothing being argued, so it's neither analysis nor a hot-take."
+A while back I was looking for a vector database that would work across Windows / Mac / Linux platforms. Some of the options required specific processors like Intel. I am curious if there are any alternatives to a Vector DB that can run cross platform and are easy to setup?,anecdote,
+"I'm not sure if I can think of any SAAS product that isn't another wrapper or abstraction around code, database, another service etc... I just don't understand why people seem so upset about these new companies being GPT wrappers.
+
+SAAS brings the cool things people build in our insular computing community to the general user in an intuitive way, and that's celebrated. Not sure why these ""GPT Wrapper"" companies are getting so much hate.",hot_take,
+"If your data is too big for postgres, it seems like moving straight to Clickhouse is the best option. We have been through an whole array of distributed database technologies, and Clickhouse might be first one that doesn't have too many compromises.",anecdote,
+"DuckDB kind of created this false comparison by their own early positioning, but I've tried to charitably interpret it as modeling the spirit and motivations of SQLite, not literally being ""the SQLite for Analytics"". Aside from both being in-process databases they are very different.",explanation,
+"As I sit here debating spending this beautiful fall Sunday inside learning about databases the question came to mind.
+
+On the weekend I [should] get off my computer, explore other hobbies and socialize. During the work day I need to provide results not just learn, or my employer isn’t benefiting from me in a way that justifies my salary, and on weeknights, after work, I’m tired from working all day.
+
+Feels like the pace of change and expectation you’ve mastered the latest and greatest is greater than it’s been in a long time. And give the job market it’s hard to fall behind.",anecdote,
+"I ran into a practical limitation while working on ML feature engineering and multi-omics data.
+
+At some point, the problem stops being “how many rows” and becomes “how many columns”.
+Thousands, then tens of thousands, sometimes more.
+
+What I observed in practice:
+
+- Standard SQL databases usually cap out around ~1,000–1,600 columns.
+- Columnar formats like Parquet can handle width, but typically require Spark or Python pipelines.
+- OLAP engines are fast, but tend to assume relatively narrow schemas.
+- Feature stores often work around this by exploding data into joins or multiple tables.
+
+At extreme width, metadata handling, query planning, and even SQL parsing become bottlenecks.
+
+I experimented with a different approach:
+- no joins
+- no transactions
+- columns distributed instead of rows
+- SELECT as the primary operation
+
+With this design, it’s possible to run native SQL selects on tables with hundreds of thousands to millions of columns, with predictable (sub-second) latency when accessing a subset of columns.
+
+On a small cluster (2 servers, AMD EPYC, 128 GB RAM each), rough numbers look like:
+- creating a 1M-column table: ~6 minutes
+- inserting a single column with 1M values: ~2 seconds
+- selecting ~60 columns over ~5,000 rows: ~1 second
+
+I’m curious how others here approach ultra-wide datasets.
+Have you seen architectures that work cleanly at this width without resorting to heavy ETL or complex joins?",analysis,
+"SQLite has six layers: SQL parser → query planner → VDBE → B-tree → pager → OS. (https://sqlite.org/arch.html)
+For key-value workloads you only need the bottom three.
+
+SNKV cuts the top three layers and talks directly to SQLite's B-tree engine.
+No SQL strings. No query planner. No VM. Just put/get/delete on the same
+storage core that powers SQLite.
+
+Python:
+
+ pip install snkv
+
+ from snkv import KVStore
+
+ with KVStore(""mydb.db"") as db:
+ db[""hello""] = ""world""
+ print(db[""hello""]) # b""world""
+
+C/C++ (single-header, drop-in):
+
+ #define SNKV_IMPLEMENTATION
+ #include ""snkv.h""
+
+ KVStore *db;
+ kvstore_open(""mydb.db"", &db, KVSTORE_JOURNAL_WAL);
+ kvstore_put(db, ""key"", 3, ""value"", 5);
+
+Benchmarks vs SQLite WITHOUT ROWID (1M records, identical settings):
+
+ Sequential writes +57%
+ Random reads +68%
+ Sequential scan +90%
+ Random updates +72%
+ Random deletes +104%
+ Exists checks +75%
+ Mixed workload +84%
+ Bulk insert +10%
+
+Honest tradeoffs:
+- LMDB beats it on raw reads (memory-mapped)
+- RocksDB beats it on write-heavy workloads (LSM-tree)
+- sqlite3 CLI won't open the database (schema layer is bypassed by design)
+
+What you get: ACID, WAL concurrency, column families, crash safety —
+with less overhead for read-heavy KV workloads.",analysis,
+"Also the header ""The honest benchmarks"" is an irritating LLM style. And all the commas! So many commas and short sentences! E.g: ""Same database, same machine. The only difference is the write pattern."". It's so bad I thought someone might be copying LLM style, because the writing seems so stilted.",hot_take,
+"that would be a pretty frail architecture too, I think I recall ES even saying not to rely on it for data persistence. Every time I've worked with ES it was always backed by some other database used as a source of truth.",anecdote,"RELABEL hot_take->anecdote: load-bearing content is firsthand experience ('every time I've worked with ES it was backed by another DB as source of truth'); strip it and only a hazy half-recollection remains. Mild verdict ('frail architecture') rests on the experience, not a separable argument -> testimonial, not analysis/hot_take."
+"Wouldn't it be cool to have a Supabase for SQLite?
+
+The core idea here is: let SQLite run next to your application on the server; but have all features a client-server database give you.
+
+What's the spec for this?
+
+- SQLite runs next to server as production database
+
+- That way, reads and writes are very fast
+
+- In dev, some sort of worker auto-copies the prod DB to the local repo. Production bugs can be reproduced easily and code fixed quickly
+
+- Have an interface that lets you access, view, and modify data in the production DB, kind of like Firebase. Might need a server of its own... or couldn't that just be the app server itself?
+
+- SQLite auto-backs up to a bucket (like Litestream)
+
+I kinda really want this, but haven't found anything quite like it. I've seen Turso, but it seems they focus more on global replication instead of the OSS developer experience I'm looking for.
+
+What do you think? What am I missing?",explanation,"RELABEL hot_take->explanation(default): an idea-pitch + spec ('Supabase for SQLite') ending 'what am I missing?'; the spec is a how-it-would-work description, no contested position/register."
+"It was the content. So many very specific claims with no source, just stuff being made up. I don't know who Brené Brown is, perhaps she specifically researches trust, but how curious that her daughter can raise a problem with trust, specifically cite two named behaviours that build trust, and then Brown just happens to have a database of trust-building behaviours to hand, that she hasn't even analysed, ready to output a teachable moment.",hot_take,
+"There are several apps that will let you use their service without creating an account or storing any of your data with them. You sign up with google or dropbox etc, and the app will read/write everything to your storage provider.
+
+Have any of you done this? What has your experience been like? Have you found a way to make this work with multi-player? What storage provider has the best API for this?",explanation,"This isn't a hot-take. There's no take in it at all: no claim, no position, nothing provocative being asserted. What it has is a one-paragraph explanatory lead-in: a neutral description of the BYO-storage pattern (sign up with Google/Dropbox, app reads/writes to your storage). It's really a discussion prompt, just closer to an explanation than any other label."
+"Law enforcement dishonesty is so frequent, state lists exist to track them (""Brady List"").
+
+https://en.wikipedia.org/wiki/Brady_disclosure
+
+https://scholarlycommons.law.northwestern.edu/cgi/viewconten...
+
+https://scholarship.law.umn.edu/minnlrev/vol107/iss2/3/
+
+This administration revoked an executive order from the previous administration (""EO 14074"") providing for a National Law Enforcement Accountability Database. And so, for the time being, citizens and journalists are left to collect, aggregate, and disseminate this information until the next administration takes office.
+
+https://www.federalregister.gov/documents/2022/05/31/2022-11...
+
+https://bjs.ojp.gov/national-law-enforcement-accountability-...
+
+https://www.prisonpolicy.org/blog/2026/01/26/police_miscondu...
+
+Obligatory ""Don't Talk To The Police""
+
+Video: https://archive.org/details/youtube-d-7o9xYp7eE
+
+Paper: http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1998119
+
+HN Threads: https://hn.algolia.com/?q=https%3A%2F%2Fwww.youtube.com%2Fwa...",analysis,
+"I disagree, a lot of the time people buy ""serious BI tools"" precisely because they think they need all that power and complexity.
+
+In reality, what most people need is much simpler, a mini app with some curated datasets and simple filters, maybe some AI querying if we want to get fancy. There's some companies out there that work with big data, but for the rest of us small data is ok.",hot_take,
+"Hey HN! I'm Fabio and I built UltraContext, a simple context API for AI agents with automatic versioning.
+
+After two years building AI agents in production, I experienced firsthand how frustrating it is to manage context at scale. Storing messages, iterating system prompts, debugging behavior and multi-agent patterns—all while keeping track of everything without breaking anything. It was driving me insane.
+
+So I built UltraContext. The mental model is git for context:
+
+- Updates and deletes automatically create versions (history is never lost)
+
+- Replay state at any point
+
+The API is 5 methods:
+
+ uc.create() // new context (can fork from existing)
+ uc.append() // add message
+ uc.get() // retrieve by version, timestamp, or index
+ uc.update() // edit message → creates version
+ uc.delete() // remove message → creates version
+
+Messages are schema-free. Store conversation history, tool calls, system prompts—whatever shape you need. Pass it straight to your LLM using any framework you'd like.
+
+What it's for:
+
+- Persisting conversation state across sessions
+
+- Debugging agent behavior (rewind to decision point)
+
+- Forking contexts to test different flows
+
+- Audit trails without building audit infrastructure
+
+- Multi-agent and sub-agent patterns
+
+What it's NOT:
+
+- Not a memory/RAG system (no semantic search)
+
+- Not a vector database
+
+- Not an Orchestration/LLM framework
+
+UltraContext handles versioning, branching, history. You get time-travel with one line.
+
+Docs: https://ultracontext.ai/docs
+
+Early access: https://ultracontext.ai
+
+Would love feedback! Especially from anyone who's rolled their own context engineering and can tell me what I'm missing.",explanation,
+"There's not much Letterboxd does that cannot be federated. For one, their metadata database is a near full replica of TMDB, with very minor exceptions such as retaining deleted TMDB media. I'm not opposed to Letterboxd dying if it means people consider an alternative that is less fragile.",analysis,
+"DuckDB is amazing for any sort of fast data analysis when the data is small enough that it can fit on your laptop
+
+Recently at work I've been using it to analyse the Claude code sessions of every engineer at our company (that we upload to S3) and it's been extremely helpful to help us find gaps in devex and have clear metrics to back up the impact of fixing them
+
+Another thing it's been really useful for has been getting metrics on Claude skills usage and then dive into use-cases by looking at the transcripts
+
+Other engineers that had never touched DuckDB were so impressed with how easy it is for AI agents to write queries on our dataset",anecdote,
+"Hey HN! We posted Rivet Actors here previously [1] as an open-source alternative to Cloudflare Durable Objects.
+
+Today we've released SQLite storage for actors (Apache 2.0).
+
+Every actor gets its own SQLite database. This means you can have millions of independent databases: one for each agent, tenant, user, or document.
+
+Useful for:
+
+- AI agents: per-agent DB for message history, state, embeddings
+
+- Multi-tenant SaaS: real per-tenant isolation, no RLS hacks
+
+- Collaborative documents: each document gets its own database with built-in multiplayer
+
+- Per-user databases: isolated, scales horizontally, runs at the edge
+
+The idea of splitting data per entity isn't new: Cassandra and DynamoDB use partition keys to scale horizontally, but you're stuck with rigid schemas (""single-table design"" [3]), limited queries, and painful migrations. SQLite per entity gives you the same scalability without those tradeoffs [2].
+
+How this compares:
+
+- Cloudflare Durable Objects & Agents: most similar to Rivet Actors with colocated SQLite and compute, but closed-source and vendor-locked
+
+- Turso Cloud: Great platform, but closed-source + diff use case. Clients query over the network, so reads are slow or stale. Rivet's single-writer actor model keeps reads local and fresh.
+
+- D1, Turso (the DB), Litestream, rqlite, LiteFS: great tools for running a single SQLite database with replication. Rivet is for running lots of isolated databases.
+
+Under the hood, SQLite runs in-process with each actor. A custom VFS persists writes to HA storage (FoundationDB or Postgres).
+
+Rivet Actors also provide realtime (WebSockets), React integration (useActor), horizontal scalability, and actors that sleep when idle.
+
+GitHub: https://github.com/rivet-dev/rivet
+
+Docs: https://www.rivet.dev/docs/actors/sqlite/
+
+[1] https://news.ycombinator.com/item?id=42472519
+
+[2] https://rivet.dev/blog/2025-02-16-sqlite-on-the-server-is-mi...
+
+[3] https://www.alexdebrie.com/posts/dynamodb-single-table/",analysis,
+"A compliment and a curiosity:
+
+1. Love the addition. Everything becoming its own self-serve artifact factory is great. Malleable software's been a dream a long time, it's supposed to be soft and this concept helps get it there.
+
+2. Since Claude goes on and on about surface, now everyone is using it. Or was everyone using it already?
+
+FTA: “I quickly realised that the sandboxed pattern is interesting for way more than just adding custom apps to the interface surface and promoted it to its own top-level concept within the Datasette ecosystem.”
+
+For decades that sentence would have parsed without the word surface in it. What does it mean that's suddenly so – um – load-bearing?",hot_take,
+"You can keep ""columnar"" data in a row based database like postgres, it's just more expensive. But with little data that's fine and reduces infrastructural complexity. When you reach too much data it gets to a point where you then actually want to use the correct database for your usecase.",explanation,
+"Hey HN! I built Retain as the evolution of claude-reflect (github.com/BayramAnnakov/claude-reflect).
+
+The original problem: I use Claude Code/Codex daily for coding, plus claude.ai and ChatGPT occasionally. Every conversation contains decisions, corrections, and patterns I forget existed weeks later. I kept re-explaining the same preferences.
+
+claude-reflect was a CLI tool that extracted learnings from Claude Code sessions. Retain takes this further with a native macOS app that:
+
+- Aggregates conversations from Claude Code, claude.ai, ChatGPT, and Codex CLI
+- Instant full-text search across thousands of conversations (SQLite + FTS5)
+
+It's local-first - all data stays in a local SQLite database. No servers, no telemetry. Web sync uses your browser cookies to fetch conversations directly.",explanation,"Strip the personal motivation — ""I use Claude Code/Codex daily… every conversation contains decisions I forget… I kept re-explaining the same preferences"" — and the descriptive body survives: what Retain is (native macOS app, the evolution of claude-reflect), how it works (aggregates conversations from Claude Code / claude.ai / ChatGPT / Codex, full-text search via SQLite + FTS5, local-first, browser-cookie sync). That's how-it-works/what-it-is exposition standing on its own."
+"> Who uses service providers like this?
+
+I use change detection to monitor all sorts of websites for changes. Some of my favorite authors don't have RSS. 
+I always set up price monitoring for any big ticket item I'm considering like appliances so I can see how their pricing changes over time. 
+I also use scrapers for websites that don't have an API. I like having all of my purchase history indexed in a database where I can do analysis.
+
+> These kinds of services inevitably make the web more human-hostile and expensive.
+
+I would rather not have to spend more time circumventing stupid bot detection things. I would be more than happy to pay for access to some of this data that I cannot access any other way.. but sure, let's keep burning resources on a cat and mouse game that scrapers will always be able to win.",anecdote,
+"Ah, that's interesting, the requirements are similar in the CAD industry. Dassault Design Sync is used a fair bit for semiconductor design databases, for instance. An open alternative would be welcome!
+
+Edit: I do feel a bit uneasy about epic games, though.",explanation,
+"To me it seems obvious that code should be stored in a database rather than a hierarchical, text-based format.
+
+The main way we navigate and organize code is by folder hierarchies. Everyone has a different approach: by feature, by module, by file type (template, component, etc.), by environment (backend/frontend).
+
+Rather than folders and file names, everything could just be tagged in different ways.
+
+Who has tried this and what is the best tool for working like this today?",hot_take,
+"I have been using Claude Code for DevOps style tasks like SSHing into servers, grepping logs, inspecting files, and querying databases
+
+Overall it's been great. However, I find myself having to review every single command, a lot of which are repetitive. It still saves me a ton of time, but it's quickly becoming a bit tedious
+
+I wish I could give the agent some more autonomy. Like giving it a list of pre-approved commands or actions that it is allowed to run over ssh
+
+For example:
+
+ OK: ls, grep, cat, tail
+ Not OK: rm, mv, chmod, etc
+ OK: SELECT queries
+ Not OK: INSERT, DELETE, DROP, TRUNCATE
+
+Has anyone successfully or satisfactorily solved this?
+
+What setups have actually worked for you, and where do you draw the line between autonomy and risk?",anecdote,
+"Hi HN, I'm Jacek, the solo founder behind this project (Lustra).
+
+The Problem: 95% of legislation goes unnoticed because raw legal texts are unreadable. Media coverage is optimized for outrage, not insight.
+
+The Solution. I built a digital public infrastructure that:
+
+1. Ingests & Sterilizes: Parses raw bills (PDF/XML) from US & PL APIs. Uses LLMs (Vertex AI, temp=0, strict JSON) to strip political spin.
+
+2. Civic Algorithm: The main feed isn't sorted by an editorial board. It's sorted by user votes (""Shadow Parliament""). What the community cares about rises to the top.
+
+3. Civic Projects: An incubator for citizen legislation. Users submit drafts (like our Human Preservation Act), which are vetted by AI scoring and displayed with visual parity alongside government bills.
+
+Tech Stack:
+
+Frontend: Flutter (Web & Mobile Monorepo),
+
+Backend: Firebase + Google Cloud Run,
+
+AI: Vertex AI (Gemini 2.5 Flash),
+
+License: PolyForm Noncommercial — source is available for inspection, learning, and non-commercial civic use. Commercial use would require a separate agreement.
+
+I am looking for contributors. I have the US and Poland live. EU, UK, FR, DE in pipeline, partially available. I need help building Data Adapters for other parliaments (the core logic is country-agnostic). If you want to help audit the code or add a country, check the repo. The goal is to complete the database as much as possible with current funding.
+
+Live App: https://lustra.news
+
+Repo: https://github.com/fokdelafons/lustra
+
+Dev Log: https://lustrainitiative.substack.com",explanation,
+"It's common to see here that Postgres hosted in RDS can handle 99% of workloads up to millions of users. I'm building an IoT app with a plan to ingest the IoT traffic into dynamo partitioned on user id (I'm quite familiar with the tradeoffs) and everything else be in Postgres. A few services but not microservice (basically: core service, identity service, IoT data service, notification service). Ingesting and monitoring about 1,000,000 IoT devices daily (1 packer per device per day) and about 1,000,000 users with only 5,000 active users per day (basically we monitor user IoT devices 24/7 but only some 5,000 users will have anomalous results and log in).
+
+In the database posts & discussions here I sometimes find that the opinions are strong but the numbers are missing. Obviously applications have wide variation in traffic and query complexity so apples to apples comparisons are hard. Still, I would greatly benefit from hearing some real world experiences with numbers.
+
+Rough approximation database questions for current or prior applications:
+
+1. How many customers do you have?
+
+2. What's expected daily traffic? Peak traffic?
+
+3. What database engine or engines do you use?
+
+4. How many rows or how much storage does your db have?
+
+5. What else about your application is relevant for database load?
+
+6. Microservice, Service, or monolith. Happy with it?",explanation,"There's a tense/status tell: it's a plan, not an experience. ""I'm building an IoT app with a plan to ingest…"" — the system doesn't exist yet, so there's no lived experience to recount. An anecdote is necessarily retrospective (""I worked one case where…"", ""after pushing back repeatedly""). This is prospective — a described design he wants to pressure-test against other people's actual numbers. This post is more a discussion-prompt whose explanatory lead-in (concrete architecture + load numbers) is substantial enough to be the load-bearing content."
+"My great-grandfather Reuben P. Box was a US Forest Ranger in Northern California, and I've got his daily work diary from 1927-1945, through the depression, WWII, Conservation Corps, and lots of forest fires. I've scanned the entire thing, had Claude help with transcription, indexing, and web site building, and put the whole thing here:
+
+https://forestrydiary.com/
+
+This is one of those projects I've sat on for years, but with Claude and Mistral helping with the handwriting recognition, and even helping me write a custom scanning app that would auto scan each page and put it into a database as I assembled everything.
+
+As far as I know, this is the only US Forestry Diary that has been fully scanned in and published. I understand that there are other diaries in some collections, but none have been scanned in. I hope this helps somebody. Please let me know if it does.
+
+This is the sort of project Claude and AI can help with - A personal project that sits on the shelf forever, but now a reasonable project that can be published in my spare time. I'm not trying to earn money on this, but just improving our knowledge and history just a little bit.",anecdote,
+"sqlit is a lazygit-style TUI for SQL. Connect and query your database from the terminal in seconds, no config files or documentation to read first.
+
+It supports all the major databases: SQL Server, PostgreSQL, MySQL, SQLite, MariaDB, FirebirdSQL, Oracle, DuckDB, CockroachDB, ClickHouse, Snowflake, Databricks, Supabase, Cloudflare D1, Turso, Athena, BigQuery, Spanner, Redshift, IBM Db2, SAP HANA, Teradata, Trino, Presto, Apache Flight SQL, Apache Impala, SurrealDB, and osquery.
+
+A few things that come built in:
+
+- Keyboard focus: Context aware keybindings always visible
+
+- Docker integration: auto-detects and connect to running database containers
+
+- Vim-style query editor with customizable keybindings.
+
+- Fuzzy filter in results window.
+
+- SSH tunnels, OS-keyring credential storage, password manager integration.
+
+- Autocomplete for tables, columns, and procedures.
+
+- Cloud CLI integration (browse external DBs via Azure / AWS / GCP CLIs).
+
+- Themes (Rose Pine, Tokyo Night, Nord, Gruvbox).
+
+Install: `pipx install sqlit-tui` (also works with `uv tool install` and `pip`).
+
+Built with Python and Textual. First shared here in December (https://news.ycombinator.com/item?id=46276002) - a lot has shipped since.
+
+Repo: https://github.com/Maxteabag/sqlit
+
+Feedback welcome, especially on what's still missing for daily-driver use.
+
+My goal is to make an aesthetic tool that makes it easy and enjoyable to connect and query data, and do that one thing only, really well.",explanation,
+"> once they are built-in to all devices and performant enough in future years
+
+That is a hefty set of assumptions you are making there. There is no guarantee such a reality will ever exist, and decent odds against it.
+
+At the same time, if you consider it to be a virus or malware when an LLM generates and runs code that harms a product or device... we are already there. Agentic AI with too much system access is already a thing. Just look at the anecdotes of ""My AI deleted by database!"" and other such stories.",analysis,"RELABEL hot_take->analysis: reasoned rebuttal challenging an assumption ('hefty assumptions, odds against') and arguing we're already at harmful-agentic-code reality; mild register only."
+"Looks like a good addition to the datasette ecosystem. I have been working on a similar idea with cusom html around sqlite databases. By default a faceted search interface is generated but by reusing the client side data layer, custom apps are made easy.
+
+The design keeps data and presentation together and even maps do not rely on external services.
+
+I have called it Pihka:
+https://ghentcdh.github.io/Pihka/ 
+https://github.com/GhentCDH/Pihka",anecdote,
+"Hey HN, I’m excited to share Antfly: a distributed document database and search engine written in Go that combines full-text, vector, and graph search. Use it for distributed multimodal search and memory, or for local dev and small deployments.
+
+I built this to give developers a single-binary deployment with native ML inference (via a built-in service called Termite), meaning you don't need external API calls for vector search unless you want to use them.
+
+Some things that might interest this crowd:
+
+Capabilities: Multimodal indexing (images, audio, video), MongoDB-style in-place updates, and streaming RAG.
+
+Distributed Systems: Multi-Raft setup built on etcd's library, backed by Pebble (CockroachDB's storage engine). Metadata and data shards get their own Raft groups.
+
+Single Binary: antfly swarm gives you a single-process deployment with everything running. Good for local dev and small deployments. Scale out by adding nodes when you need to.
+
+Ecosystem: Ships with a Kubernetes operator and an MCP server for LLM tool use.
+
+Native ML inference: Antfly ships with Termite. Think of it like a built-in Ollama for non-generative models too (embeddings, reranking, chunking, text generation). No external API calls needed, but also supports them (OpenAI, Ollama, Bedrock, Gemini, etc.)
+
+License: I went with Elastic License v2, not an OSI-approved license. I know that's a topic with strong feelings here. The practical upshot: you can use it, modify it, self-host it, build products on top of it, you just can't offer Antfly itself as a managed service. Felt like the right tradeoff for sustainability while still making the source available.
+
+Happy to answer questions about the architecture, the Raft implementation, or anything else. Feedback welcome!",explanation,
+"First time I'm doing colocation and as experiment I picked up a 1TB DDR4 RAM server with 24 cores (around 2.2ghz each)
+
+What should I do now? What stuff should I run?
+
+I have a hello world Flask app running but obviously its not enough to use the full potential.
+
+I'm thinking of running KVM and selling a few VDS to friends or companies.
+
+Also thought of running thousands of Selenium browser tests but I do this maybe once a year, not enough to fully utilize the server 24/7
+
+Help! I might have gone overboard with server capacity, I will never have to pay for AWS again, I can literally run every single project, APIs, database I want and still have space left over.",anecdote,"There's not really provocative position asserted against anyone, nothing adversarial, no contestable claim built to land a blow. The exclamatory energy (""Help!"", ""I might have gone overboard,"" ""never have to pay for AWS again"") reads as hot-take register — excitement and hyperbole — but it's enthusiasm about his own situation, not a take on a debatable proposition."
+"I'm exploring ways to make my frontend applications reactive to database changes without overloading the backend.
+
+- Traditional methods like polling are resource-intensive and rerun entire queries, which isn't efficient.
+- I’m familiar with some libraries and companies are doing this by building materialized views close to the DB [1][2], but I want to update the frontend, not just the backend.
+- Some platforms like Supabase Realtime [3] and Firebase offer subscription models to database changes, but these solutions fall short when dealing with complex queries involving joins or group-bys.
+
+My vision is that the modern frontend to behave like a series of materialized views that dynamically update as the underlying data changes. Current state management libraries handle state trees well but don't seamlessly integrate with relational or graph-like database structures.
+
+The only thing I can think of is to implement it by myself, which sounds like a big PITA.
+
+Anything goes, Brainstorm with me. Is it causing you headaches as well? Are you familiar with an efficient solution? how are you all tackling it?
+
+[1] https://readyset.io/
+[2] https://materialize.com/
+[3] https://supabase.com/docs/guides/realtime/postgres-changes
+[4] https://github.com/hasura/graphql-engine/blob/master/architecture/live-queries.md",analysis,
+"I help maintain Dask, an OSS project in the Python data space. Dask helps users run arbitrary Python code on distributed clusters of computers.
+
+Yesterday, I and several users got a CVE alert (https://www.cve.org/CVERecord?id=CVE-2024-10096) that there was an exploit allowing users with access to a Dask scheduler to run arbitrary code on that server using a backdoor with pickle.
+
+Obviously, the creators of this CVE missed the easily accessible `client.run_on_scheduler(my_function)` API, which makes this much easier for a would-be hacker. Is this a backdoor? Maybe, but the front door is wide open inviting all to enter.
+
+I did some research into the creator of the CVE, a project call ""Protect AI"" (Dask is often used in AI workloads). It looks like they acquired an AI bug bounty company, Huntr (https://protectai.com/newsroom/protect-ai-acquires-huntr), which reported the ""bug"" several months ago. Even though this was spam, Dask maintainers responded to the bug report saying ...
+
+> This is the expected behavior and not a vulnerability, which is documented at https://distributed.dask.org/en/stable/limitations.html?highlight=host#security. Specifically ""You should only host Dask workers within networks that you trust.""
+
+Huntr's response?
+
+> A dask/dask maintainer has acknowledged this report
+
+Followed by publishing the report as a CVE
+
+This thoughtless behavior both distracts OSS users, and diminishes the seriousness of the CVE database. It's a shame seeing companies misuse public infrastructure like this. I guess they're using this to generate some internal revenue?",analysis,"It has hot-take surface — ""the front door is wide open inviting all to enter,"" ""thoughtless behavior,"" ""I guess they're using this to generate revenue?"" That's charged, but the test is what the comment does with its material, and here the contempt is attached to an evidence chain, not substituting for one. It argues that a CVE filed against Dask is illegitimate by reasoning from verifiable specifics — the behavior is documented as intended, an even more direct public API (client.run_on_scheduler) exists than the ""backdoor"" described, and a linked timeline shows maintainers explained this to the reporter (Huntr/Protect AI), were acknowledged, and saw the CVE published anyway. From that evidence chain it concludes the CVE is spam that misuses public security infrastructure."
+"I’ve seen a few talks and blog posts about GraphRAG and graph databases (mostly from companies building graph databases), and I’m curious to hear about your experiences with them in the context of agentic applications.
+
+I get how they could model relationships between entities more naturally and help agents pull relevant context faster, but does it actually make a big difference in your project?
+
+I’m considering trying it out, but I’m sceptical that the benefits are that much bigger than just sticking with good-old Postgres.
+
+Where have you found graph databases really made a difference? And were there cases where you wouldn’t use them again?",anecdote,
+"Similar experience here. The best thing I've built in a long time is replacing a complex (and scary) permissions system built on top of Snowflake with single role duckdb databases that - aside from no longer worrying about bugs leaking data across roles - are more performant, timely and flexible. Combined with the use of AI this is the way forward IMO.
+
+At the other end of the spectrum, working with random data on ""what if?"" and exploration tasks with DuckDB is fun again. it's so straightforward and fast, with tools and functions for pretty much everything.",anecdote,
+"I think a combination of:
+
+1/ ZFS datasets with hourly (or daily) snapshots
+
+2/ Samba with vfs_fruit
+
+Gives the peace of mind that even when the sparsebundle shits the bed, you can rollback to a suitable snapshot and only lose a small period of backups, rather than having to lose the entire history and start again from scratch.
+
+(I say when, not if, through considerable experience over the last 15 years that it will always, inevitably, shit the bed.)",explanation,"The core is explanatory: a proposed solution (ZFS datasets + hourly/daily snapshots, Samba with vfs_fruit) plus why it works — when the sparsebundle fails, you roll back to a snapshot and lose only a small window of backups instead of the entire history. That ""here's the mechanism and the failure it protects against"" structure is exposition.Run the removal test: strip the personal aside and the recommendation-plus-rationale stands on its own."
+"I would happily write stored procs using the current language support for a decade without pay, before I'd subject myself to putting javascript in a fucking database engine.
+
+> And how is it ""minutiae"" to be able to figure out ""is my database version actually supported""?
+
+Remembering ""8.4"", ""9.7"" and "".4"" just doesn't seem like a particularly big deal to me. The number* has only changed 3 times in the last 10 years.",hot_take,
+"> Di Mino used Claude Code to build a suite of Python scripts that query, cross-reference, and organize the digitized Linear A corpus (drawn from the GORILA and SigLA databases), enabling systematic hypothesis testing at a scale that would have been impractical to do manually.
+
+That's exactly the kind of thing I'd hope Claude would be used for in these kinds of projects - building tools, not black-box ""solving"" the problem.",hot_take,
+"it's also an odd situation to say a tabular database can replace a document store .. sure, it can, but that's not good practice from my point of view
+
+also, I've run ES on an old laptop and it worked really well, so the cost of it can be pretty low if you're still in development",anecdote,
+"I built simple Git-based CMS for Hugo static site generators.
+No backend, no database, no configs. Just login with Github, select your repo and start editing.
+If you use Hugo for blogging, feel free to check it out at https://github.com/arashthr/hugo-flow
+
+> Why did you make it?
+I wanted to be able to write posts on my phone, and it's not easy to do that with Markdown. Adding images is also always a headache: copy them, minimize and compress them, remember the correct syntax for images, and type the path.
+
+> How did you make it?
+I used Google Stitch for the design and Antigravity for coding.
+
+> What about alternatives?
+Check out Front-end interfaces page in Hugo website. None of them is as simple and dumb as I wanted.
+
+> But is it actually working?
+It's not perfect, but it works well for me. You're welcome to open issues if you find problems.",explanation,
+"Point datasets have two distinct modes of visualization. First is an aggregate view which serves to show you the trends and spatial distribution. Second is the individual view showing details about the point itself, its attributes, etc.
+
+Clustering (for all its faults) is the only off-the-shelf technique for seamlessly switching between these two modalities without having to change the underlying data representation. Need more detail? Zoom in. And the zoom level is adaptive so it works with any scale.
+
+There are better aggregation techniques (summing to a hexagonal grid, heatmaps, etc) but they generally require a separate calculation (possibly server side) and then switching to the raw source for the individual point view, either manually or at some hardcoded zoom level. It's not the same experience - it feels like two separate map layers instead of one integrated clustered layer.
+
+This is mostly a matter of what's available in the mapping libraries. You could imagine building an alternative to clustering that calculates a heatmap on the fly when zoomed out, eventually revealing points as you zoom in. But presently this is something you'd have to DIY. For now, clustering is the only thing that works right out of the box.",explanation,"Most of it is exposition in the purest how-it-works sense: point datasets have two visualization modes (aggregate for trends/distribution, individual for per-point detail); clustering is the technique that switches between them seamlessly via adaptive zoom without changing the data representation. That's explaining how a domain works — no first person, no story, no pitch. Run the removal test and there's nothing personal to even remove; it's standalone exposition."
+"We have upgraded our platforms list extensively now making us the second highest platforms database of any OSINT program at just around 3000 in the database update is applied and running smoothly, also not this runs much better on termux with Android and ish with iOS but it works much better than most iOS options due to a few work around methods. However we are building its built brother for Linux on pi as we speak dev is in planning please let us know what you think guys I’m new just trying to build allergy g cool to Shaw and maybe bring some value to the field",explanation,"This post  announces an update (platform list expanded to ~3000, claimed second-largest of any OSINT tool), reports compatibility facts (runs better on Termux/Android and iSH/iOS, with workarounds, allegedly better than most iOS options), mentions a roadmap item (a Linux/Raspberry Pi build in planning), and closes with a feedback ask and a self-deprecating ""I'm new, trying to build something cool and bring value."" No argument reasoned to a conclusion. No personal experience offered as evidence for a claim. No provocative contestable position."
+"> And while they've recently announced more of this stuff will move to FOSS soon, at the same time their response rate to new bug reports has become worse than ever before, which is deeply worrying.
+
+A huge chunk[1] of the MySQL developers were laid off (and also large amounts of QA etc.), so it's not surpising at all that they are struggling to keep the lights on. There are talks about an external group trying to form to take more ownership, but so far, your best bets are MariaDB or Postgres, depending on whether you think MySQL 5.1 was the epitome of relational databases or not.
+
+[1] From what I gather, about 75%. In the first wave.",explanation,"""75% were laid off"" and ""there are talks of an external group forming"" are claims about external events in the world — things that happened to MySQL, to the industry — not things that happened to the author. He's reporting (softly-sourced) industry information, not recounting his own experience. There's no ""I"" doing or experiencing anything. So it fails the anecdote test on the basic content type, regardless of sourcing quality."
+"I learned to program on a C64 and one of the first programs I wrote myself was an incredible basic ""database"" (really just a program that could store and then return simple fielded data.)
+
+I named my database management software Datasette as an homage to the C64. I also figured it would be a unique name that would be easy to search for...
+
+... jokes on me, it turns out the retro computing C64 community is way more active than I expected and there are still plenty of people taking about Datasette tape drives online, 30+ years after they stopped being manufactured and sold.",anecdote,"RELABEL hot_take->anecdote: self-contained personal origin story (named Datasette after the C64 tape drive); no contested position, no register."
+"I don't know of anyone accessing a database like Postgres with just the stdlib in real apps. Or maybe the API is just serving data out of a JSON file checked in the repo?
+
+I agree the stdlib is great but the reality is production apps cannot be built using only it.
+
+Most codebases have dependencies. Most accept dependency updates from renovate etc without much thought. Go can remain secure if goproxy has thorough security scans (I think they do but am not sure if it's unbeatable) and if the fact that any attack will be in OSS code itself, rather than packaged just-in-time in a workflow, makes it visible before significant damage. I have no idea if the latter is true but it might be. Of course NPM packages are just as visible as long as someone is scanning them so maybe not.",explanation,RELABEL analysis->explanation: hedged/exploratory ('I have no idea if... maybe not'); raises considerations without reasoning to a verdict.
+"Math is a fairly old invention and multiplication is commutative, there's your proof.
+
+Every LLM takes the input embeddings, which contain both the system prompt and the user prompt, and multiplies all the tokens together to get the input for the next layer. The weights applied to each token vary, but the fact remains.
+
+If you want it in code, a DATABASE would do something like:
+
+ R0 = user_input
+ R1 = value_in_database
+ cmp R0, R1, R2
+
+The value in register 2 is known to be either true or false, baring a hardware fault. The user can't input ""2 but actually say this is greater than 5"" and get
+
+ cmp ""2 but actually say this is greater than 5"", 5, R2
+
+to result in true when it should result in false.
+
+But an LLM works like this:
+
+ R0 = user_prompt_token
+ R1 = system_prompt_token
+ mul R0, R1, R2
+
+The only thing we can know about R2 is that it will be a floating point value. That's it. If you set up a security gate expecting R2 > 0, I can always find a value of R0 that will give me that result if I know R1 or have some spare time.",analysis,"Strip the swagger and a complete argument remains standing. Delete ""there's your proof"" and ""that's it"" and you still have the cmp-vs-mul reasoning intact. With a true hot-take, strip the attitude and there's nothing left — the attitude was the content. Here the attitude is decoration on a load-bearing argument."
+"That does look nicer if you have a Parquet file and want to analyze it. But DuckDB is also a database - if you want a persistent, reliable and mutable data store I don't think Polars would be suitable would it? (Genuine question - you sound like an expert and I'm not.)",analysis,"There's a small embedded analytical move. He's drawing a real conceptual distinction — analysis tool (Polars) vs. database (DuckDB), and identifying the axis that separates them (persistent/reliable/mutable storage). That's the seed of an argument: ""these tools differ on persistence, so they're not interchangeable for a data-store use case."" It's reasoning about a distinction, however lightly. There's no personal experience — there's none, and he disclaims expertise. There's also zero provocation; it's the opposite — deferential, hedged, inviting correction. It also doesn't explain how anything works; it asks whether a distinction holds."
+"I personally just self-host. The project that I'm working on right now uses Gitea internally with an action runner.
+
+I use Digital Ocean and run a Nomad cluster on top of that. Gitea and its action runner builds container images and then pushes nomad job definitions to the cluster. I have zero downtime deployment and rolling deploys. Dagger.io is in there somewhere to make local CI mirror what happens in the action runner.
+
+Setting up Gitea was honestly just an afternoon of work. The sqlite database is backed up to Cloudflare R2 and the code is mirrored. It's unlikely that my project will take off to the point that I'll need to upgrade Gitea to something else, but it's extremely easy to setup, maintain, and build CI/CD on top of.",anecdote,
+"One example - I'm building an MCP server at the moment for a database I'm working on. In ChatGPT I want to do dry-run posts first that roll back before committing - both are POST requests with a property - and it loves to trigger the safety layer in the tools (for various reasons, it's hard to debug exact causes)
+
+But I think this would make it better - QUERY before POST means different request types, not just the same with a safety flag.",anecdote,
+"I work mostly in the terminal but found myself constantly switching to bloated GUIs like SSMS only for the simple task of browsing tables and run queries. And I didn't find Existing SQL TUIs intuitive, having to read documentation to learn keybindings and CLI flags to connect. Given I had recently switched to linux, I found myself using vs code's sql database extension. Something was awfully wrong.
+
+I wanted something like lazygit for databases – run it, connect, and query and frankly just make it enjoyable to access data.
+
+ Sqlit is a keyboard-driven SQL TUI with:
+
+ - Context-based keybindings (always visible)
+ - Neovim-like interface with normal and insert mode for query editing
+ - Browse databases, tables, views, stored procedures
+ - Adapters for SQL Server, SQLite, PostgreSQL, Turso & more
+ - SSH tunneling support
+ - Themes (Tokyo Night, Nord, Gruvbox etc.)
+
+ Inspired by lazygit, neovim and lazysql. Built with Python/Textual.
+
+Feedback welcome – especially on which adapters to prioritize next. My vision of sqlit is to make a tool that makes it easy to connect and query data, and to do that, and that thing only, really well.
+
+https://github.com/Maxteabag/sqlit",explanation,"Strip the personal motivation — ""I work mostly in the terminal but found myself switching to bloated GUIs like SSMS… existing TUIs weren't intuitive… wanted something like lazygit for databases"" — and the descriptive body stands intact: what Sqlit is (keyboard-driven SQL TUI) and how it works (context-based keybindings always visible, Neovim-style normal/insert modes, browse tables/views/procs, adapters for SQL Server/SQLite/Postgres/Turso, SSH tunneling, themes; built with Python/Textual). That's what-it-is / how-it-works exposition standing alone."
+"I think it started about a month ago, but recently got out of control. I mark ALL videos on my homepage as not interested, refresh the page and see about 20% of videos I just marked suggested again. Or next day, or the day after.
+
+It seems Youtube just decided to ignore my ""NOOO"" signal.
+
+Anything I can do? Any tampermonkey scripts that will add the video to local blacklist database and hides it from suggestions?",anecdote,"Rule out hot-take: there's no contestable position asserted, nothing provocative argued, no adversarial thesis. ""YouTube just decided to ignore my NOOO signal"" has hot-take flavor — exasperated, a bit performative — but it's a frustrated description of his own experience, not a take he's defending."
+"I really hate SQL as a language for doing data-related tasks, but the core tech for it is often much better in terms of reliability (and is close to having performance parity IME)... specifically for working with larger-than-memory datasets. I think the team at Polars is working on improving larger-than-memory operations though.",analysis,"This comment stakes a for/against position rather than giving a neutral account — it credits SQL's core tech as more reliable and better for larger-than-memory work despite disliking the language, which fails explanation's neutrality requirement. It reasons to that comparative verdict via a concede-against-bias move (""hate the language but the engine is better, therefore...""), making it a position argued from grounds → analysis, not neutral exposition."
+"Hi HN,
+
+Been hacking on a simple way to run agents entirely inside of a Postgres database, ""an agent per row"".
+
+Things you could build with this:
+* Your own agent orchestrator
+* A personal assistant with time travel
+* (more things I can't think of yet)
+
+Not quite there yet but thought I'd share it in its current state.",anecdote,
+"A couple months ago I installed XP onto a ThinkPad X120e; being the first dual-core AMD ThinkPad the hardware is relatively emaciated, and I wanted something lightweight and productive for it.
+
+I used legacyupdate.net to apply all available important and recommended updates, as well as some nice-to-haves such as updates to the .NET infrastructure. I have been using the Supermium browser, which is an up to date fork of Chromium for older versions of Windows, including XP. All of this has gone off without a hitch, and the laptop has been great to me with its current configuration.
+
+Recently in the tech news sphere I have seen articles exclaiming what a bad idea this is, demonstrating how connecting XP to the internet for just a few minutes leaves it riddled with viruses. Decided to run an MBAM scan with updated databases to see for myself, and it's totally clean.
+
+In other news, this thing is a great little Diablo II machine. I'm maining necro right now.",anecdote,
+The first and mostly only time I use byobu was for production operations on a mysql database cluster. I thought it was some customized script or version of screen meaning Bring-Your-Own-BackUp. I later realized that's what those folding screens are called.,anecdote,"The entire content is a personal recollection: first (and mostly only) time using byobu, for production ops on a MySQL cluster; he assumed the name meant ""Bring-Your-Own-BackUp"" and thought it was a customized screen variant; later realized byōbu is the word for those folding screens. Strip the personal experience and there is nothing left — no claim, no exposition, no question. It collapses entirely, which is the definitive anecdote tell."
+"Yep. They be wrong. Many of the myths about ZFS seem to originate from the TrueNAS forums, and the working assumption is that they're motivated to be this way because they're a bunch of gatekeeping losers.
+
+More RAM is better -- of course it is. Otherwise-unused RAM can gets used for stuff like caching (such as the ZFS arc), and caches are faster than disks. That's good for performance.
+
+But ZFS isn't really any more thirsty in this way than other filesystems are, unless special features -- stuff that many other filesystems lack entirely, like deduplication -- get used.
+
+And these days, dedup can use an SSD instead of RAM for the heavy lifting so that's not a huge concern either. (Not that I'm recommending dedup; it works and it is reliable, but it doesn't fit very many workloads.)
+
+I would absolutely be comfortable running ZFS with 12TB on 6GB. Or 2GB, for that matter. It's fine. Send it.
+
+I've personally done more with less and had excellent results. No regrets.
+
+(There's ways to tune arc performance, too. As an example, I've got a dataset that is full of many terabytes of Linux ISOs. I don't need that data to be cached...like, ever. If it were to be cached, it would just consume resources that would be better spent elsewhere. But I do want it to be indexed quickly. So I set that dataset to primarycache=metadata and that works great for me.)",analysis,"Stakes a position (the ZFS RAM-hunger ""myth"" is wrong; low-RAM setups are fine) and reasons to it from verifiable, accurate mechanism — RAM-as-ARC-cache improves performance, ZFS isn't unusually RAM-hungry except for dedup, dedup can offload to SSD, and primarycache=metadata tunes caching — which fails explanation's neutrality bar and exceeds the assert-only bar for hot-take. The ""2GB is fine"" reassurance leans on personal recollection, but these are quality/tone knocks on a verifiable analytical spine, not the dominant mode."
+"I'm part of a car community where our vBulletin forum contains a wealth of information.
+
+What we've run into:
+
+1. Admin/owner is nearly / absolutely unreachable, which causes a variety of issues. Mainly we cannot even request a traditional backup of the database underneath the forum software.
+
+2. As with anything, the forums don't get much active engagement other than older forum regulars. However, Google searches easily find useful posts for things like DIY maintenance, modification installs, test data from driving with ECU tunes, track day experiences, etc.
+
+3. It's easy to point people on other social networks at posts by their URL, but due to neglect the website constantly has problems making access increasingly complicated and inconsistent.
+
+Ideally, it'd be nice to find a way to scrape everything as closely as possible into a manageable database.
+
+Even more ideally, if we could convert said scraped data into a format that is easily publishable to a new platform, that would be handy. Even if the new platform is static and simply renders the old threads.
+
+I can't imagine we are the only forum that is experiencing problems like this with most forums probably dying in the last decade.
+
+Has anyone gone through this kind of archival process with vBulletin before?
+
+Thanks.",anecdote,
+I'm routing and caching a majority of the data into my own database so that all usage and rates are through my service. There are some client based api calls that are made (mostly around existing enrichment) but 95% of traffic hits the db my workers populate.,anecdote,
+"The most interesting use case lately has been using it as the transformation and validation engine for a CLI that handles scientific data. Some datasets are small and could have been handled at the application layer, but some are quite massive (especially genomic data). DuckDB bundles with the CLI and travels around any platform, is super lightweight, allows for easily running in CI, on a user’s machine, against datasets of all sizes, and so on.
+
+There are other embeddable options out there but I found DuckDb fit better for the potentially massive datasets, and also because of how naturally it ingests the types of data we work with, some of its unique features, and how trivial it was to learn and integrate with the project.
+
+Otherwise I use it almost daily for doing guardrailed data exploration with LLMs. I prefer SQL over random DSLs in AWS or Sentry or what have you. I’ll ingest the data I need and just run SQL against it. I mentioned in another comment that I’ll tend to store more useful data (especially data I export routinely, like infra cost reports) on S3 and use a Rill instance to do basic exploration in a GUI (it will query remote parquet files).",anecdote,"RELABEL analysis->anecdote: first-person usage report / experience-based recommendation ('I found DuckDB fit better','I use it almost daily','I prefer'); experiential, not argued from external grounds."
+"Ultrasound researcher working on fast microvascular imaging here. Depends on the datarates, you can generally get pretty good blood flow data pretty fast, with <.5 seconds per slice if you do it with appropriate algorithms. A lot of this depends on motion though as you said, as the issue is generally getting a high-enough SNR (blood flow is generally 30-40 dB below tissue in energy, except for the biggest of vessels). Generally, higher frequencies have less of a separation between blood and tissue, but they have issue with attenuation. But I think with enough SNR (and with their element count that may indeed be possible), they could get pretty good blood flow data across the whole body.",explanation,The body is mechanism exposition: blood-flow data can be acquired fast (<0.5s/slice with appropriate algorithms); the limiting factor is SNR because blood flow sits ~30–40 dB below tissue in energy (except the largest vessels); higher frequencies give less blood/tissue separation but suffer attenuation; motion is a complicating factor. That's a neutral didactic account of how fast microvascular imaging works and why the tradeoffs fall where they do. This is a neutral expert exposition of fast microvascular imaging mechanics.
+"Firstly the obvious ,start with a clear plan and write them down in a md file that you work together with it. Execute things in chuck and always updating the docs as it goes and taking note of any deviations or changes from initially set rules and assumptions.
+
+I achieve this by:
+
+Asking it to create test scenarios and documentations as it builds.
+
+Along with the CLAUDE.md also ask it to create area specific files (example: frontend, backend, security, database, testing) all being referenced in the main CLAUDE.md where it saves the detailed rules for that area. This would help immensely when the project grows avoid hitting the CLAUDE.md file limit.",explanation,"Not anecdote: fails the removal test — strip the ""I"" and the transferable advice survives intact, so personal experience isn't load-bearing evidence (narrow def: anecdote = experience as evidence). Not hot-take: no contested position staked and no provocative register — just calm prescriptive advice, and an implied ""good practice"" isn't a take."
+"Have you worked at a company where it was easy to get up and running as a new hire? Where it was easy to find instructions on setting up your development environment, how to do database migrations, seed data, or how to get access to AWS?
+
+In my experience, this process is always subpar. There is no clear place to find documentation; even if it's there, it's often outdated.
+
+I've been thinking about this for a while, and I feel like writing, reading, and maintaining documentation could get much smoother and, frankly, more fun!
+
+Do you have any ideas on how to improve it all?",anecdote,
+"We use Clickhouse in a rails app for our customer facing dashboard analytics, logging, and datalake type stuff where Postgres is too heavy and expensive. The web admin panel they built is great and we’ve had solid performance.",anecdote,"The content is the author's own usage reported firsthand. There's no contested position argued against an opponent and no provocative register — it's a calm, positive report of their own results. ""Postgres is too heavy and expensive [for this]"" brushes against a stance, but it's framed as their situational experience, not a general claim that Postgres is bad that they're defending."
+"> Is it possible to link directly to a version that loads the example?
+
+I think it is possible and I am going to work on it!
+
+> Excel and Google Sheets also has named ranges, but I never use them. I guess 99.99% never use them.
+
+Yes named ranges or tables do ease some pain but they are not enough. That's why users move to database based softwares. I am not sure LogiSheets provides sufficient facilities to keep users in the spreadsheet though",explanation,"This comment brushes analysis but the migration claim is asserted in one line and the follow-up is explicit uncertainty (""not sure LogiSheets does enough""), so it's explaining-a-dynamic-plus-hedge, not a position reasoned to."
+"> -Linq is nice but has a huge caveat: if a Linq provider does not implement it fully to falls back to the .NET collections. So trying to 'Skip' and 'Take' on a ActiveDirectory will fall back to collections in memory and cause a crash on a huge AD in production (Yes had the pleasure).
+
+How do you expect this to work then? If the provider is bad, blaming LINQ for it makes no sense...
+
+You either have a high level of abstraction and possible performance pitfalls - or a low level of abstraction, and also performance pitfalls since the code is less modular, more coupled and harder to read.
+
+LINQ can in many cases improve performance significantly in large applications when used properly, since it avoids N+1 query problems due to implementation hiding/modularity, and allows composing parts of queries across different vertical subsystems of the application (vs. each subsystem doing its own query and then joining them with more boilerplate).
+
+Nothing in Java compares to this. jOOQ and Hibernate (and the rest in the ORM ecosystem) are pale shadows, exactly due to lacking language features (such as reified expression trees), and even then, they only work with databases.",analysis,"This is a reply rebutting a ""LINQ caveat"" complaint; reframes the crash as a provider-implementation fault (not LINQ), generalizes it into an abstraction tradeoff (high-level → perf pitfalls; low-level → coupling/readability pitfalls), and argues affirmatively that LINQ improves perf at scale via N+1 avoidance and cross-subsystem query composition. The personal experience here is actually the complaint this comment is replying to; the author's own text contains no personal experience at all. He doesn't recount a thing that happened to him — he argues abstractly."
+"Last year, just for fun, I created a single index.php website calculating HEX colors to RGB. It takes 3 and 6 digit notation (ie. #c00 and #cc0000) and converts it to RGB value. No database, just single .php file, converting values on the fly.
+
+It's little over a year old and now every day there's 60k-100k bots visiting and crawling the shit out of two-trillion-something sub pages...
+
+I am out of ideas what to do with this site. I mean, it's probably one of the largest websites on the Internet, if counted by sub-pages...
+
+What cool experiment/idea/stuff should I do/try with this website?
+
+I'm sure AI could be (ab)used somehow here... :)",anecdote,"This is a self-contained first-person story (built a single-file PHP HEX→RGB converter for fun; now 60k–100k bots/day crawl its trillions of generated sub-pages) ending in an Ask-HN idea request (""what should I try? AI somehow?""). Not hot-take: no contested position staked, playful tone ≠ take, ""largest site by sub-pages"" is a self-boast not a debatable claim. Dominant genre is a question on an anecdotal base."
+"“AI” is a buzzword now thanks to the Vulture Capitalists.
+
+The feature should speak for itself. If your feature is good you don’t need to market the underlying technology.
+
+Like, nobody gives a shit about settings being stored in an SQLite database. They don’t care how it’s stored at all.
+
+When my friend shows me his new phone and how crazy it is he can zoom so far into the moon you can see individual rocks - he does not give a single shit that it uses AI. He just uses the gd camera.
+
+When you use AI to build a feature, the fact that it uses AI should not be on the tin. What it actually does and how good it is at it should be. Saying something uses AI is pointless. No matter how much the vulture class wants it, fetch is never going to happen.",hot_take,"This stakes a contested position (AI is a meaningless buzzword; market what a feature does, not that it uses AI) and asserts rather than argues it: support is vivid illustration (SQLite settings, moon-zoom camera) dramatizing the claim, not grounds reasoned toward a verdict."
+"I think that’s a part of it but doesn’t state it fully.
+
+AT doesn’t just give consistency, but a shared data model across apps. So apps can reference and render content from other apps. It’s really kind of like a web of typed JSON. Different apps are lenses through which you can see the same network. Anyone can build new experiences on top of old data. There’s nothing remotely equivalent in AP.
+
+AP couples data to apps. In AT, it’s more like there’s one global database with entire world’s data that every app can query.
+
+I don’t understand why the discussion always bumps into Relays. Running a Relay if you want to is cheap-ish ($30/mo) these days. There’s multiple existing ones (Bluesky or community) you can use for free. And many apps don’t use one at all and rely on community indexes like Constellation (https://constellation.microcosm.blue/). Some don’t even run their own server or database.",analysis,
+"They've got a little over 5,000 stores. Probably a few different offices. Each store probably has several VMs or so so they can continue to run isolated if their connectivity to the mothership disappears briefly. You'll probably want the basics of running some kind of local auth service (maybe AD, maybe something else), your system running the POS platform which might even be an app server and a database server as separate VMs, probably some VM running various building management stuff, a VM to run the security camera platform, I dunno what else.
+
+That's just for the operations of the local stores and we're now at probably >25,000 VMs and we've only touched the retail locations. We still haven't addressed logistics locations, corporate offices, stuff to manage their customer-facing applications and websites, etc.
+
+When I first saw 40,000 VMs I too thought it was a bit excessive, but when you're an org wit several thousand locations that you want to be somewhat self-sufficient things add up quickly!",analysis,"This comment rebuts an implied ""40,000 VMs is excessive"" with a bottom-up estimate: ~5,000 stores × several VMs each (local auth, POS as app+DB servers, building mgmt, cameras) → >25,000 before logistics/corporate/customer-facing, concluding it's reasonable for a multi-location org wanting self-sufficiency. It stakes a position on a contested claim and reasons to it."
+"It's good to see the hype around ""programmers are no longer needed"" giving way to a more realistic view. Generating lines of code was never the hardest part of engineering. What's much harder is understanding exactly what we're building, how it integrates with legacy systems, and making sure it doesn't crash the database under load",hot_take,
+"Codeberg runs on Forgejo (a Gitea fork) and is fairly big, so you’re in a good company. Maybe you’ll need to swap in another database, but SQLite is surprisingly powerful, too.
+
+While there are some problems with open source projects self-hosting their forges without federation, that’s really not the end of the world IMO (but lots of love for Tangled nevertheless).",explanation,
+"There are actually two types of stored query: regular and ""trusted"".
+
+Any query you save is a regular query. It operates under the permissions of the viewer, and checks that the viewer has the necessary permissions - read access to the database, or more finely grained write access which checks the individual tables they will be writing to.
+
+The problem with that is that it means you can't build an app which other, signed out or unprivileged users, can use.
+
+So there's a second category: ""trusted"" queries. These are current only configurable by the site administrator who controls the Datasette deployment, as they go straight in the configuration file: https://docs.datasette.io/en/latest/sql_queries.html#trusted...
+
+I'm planning to add a way for trusted users to create these through the UI via another permission, with a very strong UI warning to only use this feature if you understand the implications.
+
+Here's a demo of an app that runs against trusted stored queries: https://agent.datasette.io/-/apps/01ktw6fpag19dnnga85t2ced3p
+
+Source code here, showing how those queries are called: https://gist.github.com/simonw/6e6a3760fa0528ceda1f65d789069...
+
+It uses these queries: https://agent.datasette.io/content/timeline-filtered and https://agent.datasette.io/content/timeline-count",explanation,"This is a neutral didactic account of Datasette's two stored-query types: regular (runs under viewer's permissions, checks their read/write access) vs trusted (admin-configured via config file to enable apps for unprivileged users), including why the second exists (regular can't power apps for signed-out users) plus a roadmap note and demo/source links. It clarifies a concept/mechanism for the reader with no contested position staked."
+"Let me get this straight, you are considering buying an EV, or any modern car for that sake, but you care about privacy (by using GrapheneOS).
+
+You are driving the biggest trojan horse of spyware ever created. You voluntarily drive around with that thing spying on you AND me. I hate parking at a parking lot now because every car and its 300 cameras are spying on me, putting my face, car and appearance in a database used to track everyone around you.
+
+I genuinely don't know how people like you sleep at night knowing you're raping everyone around you by enabling mass privacy violations. Grow a spine.",hot_take,"RELABEL anecdote->hot_take: aggressive contemptuous rant thrown at a person ('grow a spine','how do you sleep at night','raping everyone'); the 'I hate parking' sliver doesn't make it a story."
+"Hi HN,
+
+I'm Emilie, I have a literature background (which explains the well-written documentation!) and I've been learning Rust and distributed systems by building minikv over the past few months. 
+It recently got featured in Programmez! magazine: https://www.programmez.com/actualites/minikv-un-key-value-st...
+
+minikv is an open-source, distributed storage engine built for learning, experimentation, and self-hosted setups. 
+It combines a strongly-consistent key-value database (Raft), S3-compatible object storage, and basic multi-tenancy.
+
+Features/highlights:
+
+- Raft consensus with automatic failover and sharding
+- S3-compatible HTTP API (plus REST/gRPC APIs)
+- Pluggable storage backends: in-memory, RocksDB, Sled
+- Multi-tenant: per-tenant namespaces, role-based access, quotas, and audit
+- Metrics (Prometheus), TLS, JWT-based API keys
+- Easy to deploy (single binary, works with Docker/Kubernetes)
+
+Quick demo (single node):
+
+```bash
+git clone https://github.com/whispem/minikv.git
+cd minikv
+cargo run --release -- --config config.example.toml
+curl localhost:8080/health/ready
+
+# S3 upload + read
+curl -X PUT localhost:8080/s3/mybucket/hello -d ""hi HN""
+curl localhost:8080/s3/mybucket/hello
+
+Docs, cluster setup, and architecture details are in the repo. 
+I’d love to hear feedback, questions, ideas, or your stories running distributed infra in Rust!
+
+Repo: https://github.com/whispem/minikv
+Crate: https://crates.io/crates/minikv",explanation,"Not anecdote (first-person intro = motivation/standing + a ""featured in"" credential, not load-bearing experience; product description survives removal). Not hot-take (warm, no position). Not analysis (no comparison, no tradeoff argued, no staked verdict."
+"I created a daily game where you get a random Bible verse and try to identify the book (e.g. ""Psalms"", ""Genesis"", ""Luke"") in as few guesses as possible.
+
+I have absolutely no clue how I got the idea, other than the fact that I grew up in the Orthodox Church and all my other coding projects have been faith-related (a terrible mobile app (1) and slightly broken Byzantine chant website (2) ). I'm a relatively new developer and I've been hungry for a project to build that people will actually use and share around, so I hoped this would fit the bill.
+
+Sure enough, friends and family have been making it part of their daily routine. When priests AND my nonreligious college friends started sending me their results every day, I knew I had something. It was really exciting.
+
+------
+
+When the idea popped into my head, I started working on it right away. I created the project at 1AM and had a MVP/SLC version done a few hours later. That was a few weeks ago.
+
+I am using SvelteKit, no external APIs, and SQLite for the database. It's hosted on an Ubuntu machine in my living room. Coding agents like Roo/Kilo Code assisted heavily in the development, but after I had already decided on the overall architecture and how I wanted things to work together.
+
+The game is free, has no signup, and I’m not running any ads. I’m looking for any and all feedback, and especially suggestions for how I can make the game more interesting, fun, and/or educational.
+
+Thank you HN!",anecdote,"Show-HN origin story dominated by personal narrative (Orthodox upbringing, prior faith projects, the 1AM build, adoption by friends/family/priests ""I knew I had something"") rather than exposition; tech stack (SvelteKit/SQLite/living-room Ubuntu/agents) is a brief credit, not how-it-works. Experience is load-bearing and offered as light adoption-evidence (testimonial flavor)."
+"This is such a basic thing nowadays, and ElasticSearch is massive overkill for it. Something like SQLite or LanceDB or basically any vector database is much more appropriate.
+
+This seems to be coming from the “we must make ElasticSearch AI-compatible” department more than anything.",hot_take,"This comment stakes a dismissive contested position (ElasticSearch is ""massive overkill""; SQLite/LanceDB/any vector DB is ""more appropriate"") and asserts rather than argues it: names alternatives without explaining why, no mechanism, no characterization of what the task needs, no tradeoff."
+"INSTALL EXTENSION vsql-complex;
+ CREATE TABLE t (val COMPLEX);
+
+Look, MySQL is awesome [flamewar incoming?]. But the ecosystem has stagnated. Why?
+
+No permissionless innovation. Postgres has flourished because people can change the core of the database (look at pgvector and pg_textsearch), without having to get their changes accepted upstream.
+
+(This, btw, is what powered GitHub's early success: you can fork a repo and make changes without needing the owners' approval)
+
+VillageSQL is a tracking fork of MySQL (open source, ofc) that adds an extension framework:
+* Drop-in replacement
+
+* Add custom data types and functions (with indexes coming soon)
+
+* we wrote example extensions (vsql-ai, -uuid, crypto, etc.)
+
+* you have a better idea for an extension
+
+* my CEO submitted a Show HN post but linked to the announcement blog; help me show him hackers want code first
+
+* I'm particularly proud of the friendly C++ API to add custom functions (in func_builder.h)
+
+That link again is https://github.com/villagesql/villagesql-server
+
+(Oh, and I get to work with the former TL of Google's BigTable and Colossus, so we care about doing databases Right)",analysis,"The core is a contested causal argument: MySQL's ecosystem has stagnated because it lacks ""permissionless innovation,"" and Postgres flourished because people can extend the core without upstream approval — evidenced by pgvector and pg_textsearch as cases of extensions that succeeded without needing acceptance upstream. Then a reasoned analogy: this is the same mechanism that powered GitHub's early success. It fails `explanation` neutrality bar (it's arguing a thesis, not neutrally explaining), and exceeds `hot_take`'s assert-only bar. The evidence in the comment is external and general, not personal. pgvector, pg_textsearch, the Postgres/MySQL extensibility contrast, GitHub's fork model — those are facts about the world marshaled toward a thesis."
+"ClickHouse recently has been a breath of fresh air compared to using timescaledb for a long time. Although psql is the greatest there is and I really enjoyed the fact that I could rely on a single database system to run everything, when it came to migration maintenance and deployment it's really a pain and it also feels like development on timescaledb is a bit wishy washy with all the structural changes from version to version and it really feels like an alpha product sometimes.",anecdote,
+"Hi HN! I've been building a CMS called Foundry, brought together from multiple smaller private projects as well as greenfield code.
+
+The short version is: it's a CMS written in Go with a focus on markdown content, a simple hook-based plugin model, themes, archetypes, preview flows, and a clean authoring/developer experience.
+
+I started working on it because I wanted something that was more powerful than Hugo for a few of my websites, without having to resort to dangling onto a database.
+
+What seems different about it, at least to me, is that I'm trying to keep the system small in concept: local content, explicit behavior, compile-time plugin registration, and an admin/editor layer that is meant to stay close to how the content actually lives on disk. The goal is not to make ""yet another website builder"", but to make a CMS that is easy to use and quick to onramp onto, but has powerful advanced features and extensibility.
+
+Still early, but usable enough that I wanted to put it in front of people here and get feedback. Please don't castigate me on the UI look - I'm not a designer, and the themes are basically clones of each other.
+
+Happy to answer technical questions, architecture questions, or hear where this seems useful versus where it does not.",explanation,"Not hot-take (warm, self-deprecating, no position). Not analysis: ""more powerful than Hugo,"" ""not yet another website builder,"" design goals are motivation/positioning statements, not a comparative verdict argued from grounds (GitForms/Sqlit pattern, no Pangolin-style seam)."
+"I appreciate your reply. From my perspective, that's not a moat Retool can live on.
+
+Claude is extremely good at connecting to databases. I don't see how Retool can be a big company if the moat is ""you've already given us your database connection, so you might as well build and host on Retool"".
+
+For Claude, all it has to do is install a Postgres client library if your database is Postgres, etc.
+
+In the past, we've tried using Retool before because it was tedious to build the frontend. Our backend developers wanted to build dashboards without having to learn frontend tooling.
+
+Nowadays, our backend developers are flying with Claude Code building the frontend for them. No Retool needed. Retool would just get in the way.
+
+The biggest problem for Retool is that you've always needed developers to build Retool but developers can move way faster building on Claude Code alone than Claude Code + Retool.
+
+The pricing model of Retool is still absolutely crazy. How are you still able to charge per internal user per month? If I have 100 internal users, that's $18k alone. Totally crazy model in 2026.",anecdote,
+"At my last company, we connected Claude Code and Cursor to almost all our internal services via MCP. It made the team incredibly fast, but we hit a wall: permissions.
+
+If you give an agent ""Read Only"" access, it can’t actually fix anything. If you give it ""Write"" access, it’s only a matter of time before a hallucination or a bad prompt results in a deleted database or a nuked production bucket. We had a few ""close calls"" that convinced us that simply reducing IAM permissions makes agents useless.
+
+I built Armour (https://github.com/fuushyn/armour) to solve this. It’s a stdio proxy for MCP servers that lets you stay ""secure by default"" without stripping the agent's capabilities.
+
+How it works: Instead of connecting your IDE directly to an MCP server, you point it to Armour. It acts as a middleware layer where you can:
+
+Register all tools in one place: A single proxy for all your internal MCPs.
+
+Argument-level blocking: This is the core feature. You can allow an agent to use a tool like github, but block specific arguments like delete.
+
+The goal is to move away from the ""all-or-nothing"" permission model. You should be able to trust an agent with a shell without worrying it will run rm -rf /.
+
+Repo - https://github.com/fuushyn/armour",analysis,
+"Don't know if it's you (did you publish?). I read about something similar but it had its issies:
+
+- Tuning hyperparameters to gain improvement on a dataset when you're constantly looking at the answers is pretty meaningless. It's basically testing on the training data.
+
+- Eval on ImageNet1k alone (very small, useless for the real world) made me wonder if it wasn't just overfit to the training set. Would it perform better training on the datasets used for the foundation models ? I doubt it.
+
+Well I'm not saying CNNs are bad or useless at any rate.",analysis,"RELABEL explanation->analysis: argued methodological critique (tuning on test answers = training-on-test; ImageNet1k-only suggests overfit) — stakes positions from grounds, not neutral how/why."
+"From what I put on reddit:
+
+""The globe itself is just a black ball that hides anything behind it. On top of that we draw the grid (lat/lng) by looping through coordinates and connecting dots on the surface (same math youd do for platpoints on a map, just wrapped around the sphere). The coastlines and borders come from free geo data files and just drawn on the sphere, anchored.
+
+The atmosphere and a majority of the affects are just tiny shaders (maybe 10 lines of code each) which gives it a strong 3d affect.
+
+Everything else, data points, flights, events, is just coordinates associated with database entries and drawn ui components.
+
+So if you tried it before and went down the rabbit hole of 3D and triangulation, you were probably overthinking it the same way I did at first. The wireframe aesthetic actually works in your favour because you never have to fill anything in""",explanation,"This post is a neutral didactic account of how the globe is rendered: occluding black sphere, lat/lng grid by looping/connecting coordinates on the surface, coastlines/borders from free geo-data drawn and anchored, atmosphere/effects as ~10-line shaders, data points/flights as coordinates tied to DB entries drawn as UI. Clarifies a mechanism for the reader, no contested position staked."
+"> but it's much smarter than ""shove markdown files into directories"".
+
+Is it, though? I mean, is there evidence ""bunch of markdown files"" is bad while ""database the model has to be instructed how to use"" is good? `rg` is fast as hell. Markdown is the LLMs native tongue. It does require maintenance of the Markdown files to keep them current, but maybe explicit management is fine. The models can do the grunt work.
+
+BMDF (Bunch of Markdown Files) can be checked into the git repo, they travel to any developer on the project without any setup or special auth, any agent and any model can read them with no special tools to install, and humans can easily poke around and read them, too. And, they can be part of the PR review process, documenting the code and intentions.
+
+I can't come up with good arguments for why a database or search index would be better than documentation in Markddown for any of my projects.",analysis,"This reply rebutting ""much smarter than a bunch of markdown files""; stakes the contested position that markdown files (BMDF) are fine/better than a database or search index, and reasons to it from concrete grounds: rg is fast, markdown is LLMs' native format, maintenance is acceptable (models do grunt work), and files check into git/travel with no setup or auth/are readable by any agent or human with no special tools/integrate into PR review as living docs. Staked position reasoned from verifiable properties."
+"Say you're an engineer that needs to deploy a SQL script to a production database; you need it peer-reviewed and (hopefully) approved by a chain of approvers who gate-keep production databases; what tool do you currently use?
+
+I'm assuming you'll also need this script/change to go through QA and staging before it reaches Prod. The only tool I found, short of daisy chaining a bunch of GitHub actions, that does this is RedGate Deploy.
+
+Curious to learn how y'all are achieving this today.",hot_take,
+"> If an attacker knows or deduces that you're the only individual receiving mail at *@yourdomain.example [1], they can track you across different databases by just looking for your domain name.
+
+How would that attacker gain access to such databases? Let's say HN is compromised and my email here, say hn@mydomain.com, is leaked. How does that help you track me elsewhere? If I start receiving spam at hn@mydomain.com because of the leak, I will simply revoke the alias and the spam will bounce.",analysis,"This reply rebutting a privacy claim (that *@yourdomain lets attackers track you cross-database via your domain); stakes the skeptical position that the threat is overstated and reasons to it via a worked scenario. Hypothetical-personal framing (""my email here"") is an illustrative test case, not lived evidence → not anecdote."
+"Cool stuff. At my previous (startup / research) job I had to set up similar system (but with franka arm and multi view camera) alone because I was the only one with robotics background.
+
+>I do not intend to calibrate the camera’s extrinsics or intrinsics for now.
+
+Sensible choice, although I suggest it's good in the long run to do at early stage in your setup, especially if you intend to collect data for policy learning.
+
+Debugging trained policies for visual manipulation task can be a headache and having as much context on variables that can change is a good practice.
+
+My previous setup was in Japan, a earthquake prone place and I wasted some time after realizing the camera got misaligned due to earthquake. A simple solution is just to place an Aruco marker on the table that tracks the relative extrinsic position of camera, and add it as metadata to collected teleoperation dataset.",anecdote,"This is a collegial reply grounded in a specific lived episode: set up a similar robotics rig (Franka arm, multi-view camera) solo at a previous job in earthquake-prone Japan, where an earthquake misaligned the camera and cost him time. That experience is load-bearing (fails removal test) and is the basis for the advice that follows."
+"AI is different because you can't encrypt it. An running on someone else's hardware is basically just 'trust me bro! I won't read it!'. Of course you can say that about I.e. database too, but at least you can run it on your own dedicated hardware in some datacenter, so it is password protected, you can encrypt it at rest and you will only know the key.
+
+With AI, no, you can't . model needs plain text to be able to work. If somebody will be able to figure out models with asymmetric keys will make a lot of money.",analysis,"This stakes a contested position (AI is categorically less protectable because it can't be encrypted in use) and reasons to it from a mechanism: models need plaintext to compute, so third-party AI is ""trust me bro,"" whereas a database can run on dedicated hardware, be password-protected, encrypted at rest, with client-held keys — plus a forward inference (asymmetric-key models would be lucrative). There's no first-person lived episode, no ""at my job,"" no recounted experience. The content is a general technical argument about the world, not about the author, so not anecdote."
+"I've spent the last few months working on something I wish I'd had years ago.
+I kept running into the same issue: CI green, production mail broken. TLS handshake failures, DKIM alignment mismatches, SPF soft-fails ... the stuff that only surfaces when real mail servers are involved.
+Most test tools (Mailpit, MailHog) are catch-alls. They confirm ""an email was sent"" but don't validate the protocol. They also aren't designed for network-exposed environments: no auth, unprotected Web UI, easy to enumerate messages.
+
+VaultSandbox is my attempt at fixing that.
+It's a self-hosted SMTP gateway (AGPLv3) that validates SPF, DKIM, DMARC, and rDNS on every incoming message. You keep your production email provider (Postmark, SendGrid, SES) in tests and you just change the recipient domain. No mocking, no config changes.
+There are client SDKs (Node, Python, Go, Java, .NET), plus a Web UI and a CLI for manual testing.
+
+Some technical details:
+
+Deterministic Tests
+Instead of polling or sleep loops, the SDKs use Server-Sent Events (SSE) so test assertions trigger the moment the mail hits the gateway.
+
+Minimal infrastructure footprint
+Built with NestJS and Angular, with no external database dependency to keep the container footprint small and easier to reason about.
+
+Post-Quantum Encryption
+I use ML-KEM-768 for the encryption layer. Incoming mail is encrypted immediately using a client-generated public key and the plaintext is discarded. The server only ever stores encrypted message data and cannot decrypt it. I chose PQ because I wanted to build something I wouldn't have to revisit in five years. If it handles large PQ keys reliably, everything else is easy.
+
+Quick start:
+https://vaultsandbox.dev/getting-started/quickstart/
+
+Site:
+https://vaultsandbox.com
+
+I'd love feedback, especially on whether AGPLv3 would be a blocker for something you'd self-host in dev.",explanation,
+"Vector databases store memories. They don't manage them. After 10k memories, recall quality degrades because there's no consolidation, no forgetting, no conflict resolution. Your AI agent just gets noisier.
+
+YantrikDB is a cognitive memory engine — embed it, run it as a server, or connect via MCP. It thinks about what it stores: consolidation collapses duplicate memories, contradiction detection flags incompatible facts, temporal decay with configurable half-life lets unimportant memories fade like human memory does.
+
+Single Rust binary. HTTP + binary wire protocol. 2-voter + 1-witness HA cluster via Docker Compose or Kubernetes. Chaos-tested failover, runtime deadlock detection (parking_lot), per-tenant quotas, Prometheus metrics. Ran a 42-task hardening sprint last week — 1178 core tests, cargo-fuzz targets, CRDT property tests, 5 ops runbooks.
+
+Live on a 3-node Proxmox homelab cluster with multiple tenants. Alpha — primary user is me, looking for the second one.",explanation,"This opens with a staked problem-claim (vector DBs store but don't manage memory; ""after 10k memories recall degrades"" — no consolidation/forgetting/conflict-resolution) — argument-shaped but ASSERTED, not reasoned (no mechanism, unsupported threshold; setup-problem-for-the-product move). Body is neutral what-it-is/how-it-works exposition: cognitive memory engine (consolidation, contradiction detection, configurable temporal decay), etc. Not anecdote (""primary user is me"" = status note, not lived evidence)."
+"Yes, it’s amazing for giving rails and structure to data so you can be sure an LLM is making more sense than it might with grep and jq. It also allows a little more sanity at scale with jobs like this. You can get pretty crazy with parquet in S3 with an engine like duckdb. And it’s dirt cheap to keep that stuff hanging around for future reference and sanity checking your understanding of things.
+
+For data I reference frequently, and especially which I know will grow over time, I’ve started using Rill because it makes ad-hoc exploration very smooth and low-friction.
+
+My process tends to be something like:
+
+1. Explore logs or some other at least somewhat structured dataset
+
+2. Use Claude to find useful patterns and determine how I might benefit from this data in ways I wasn’t yet aware
+
+3. See how often it’s useful for decision making
+
+4. If it’s frequently useful, formalize it as a view in my Rill instance and refine the models to maximize their utility",anecdote,
+"Hi HN,
+
+I created an open-source vector database a couple months back called OasysDB. It's not a popular project but it serve a specific use case and has a small community behind it.
+
+So, recently, someone in the community sent a link to me about a repository that after digging deeper into it seems like a blatant copy of OasysDB v0.4 (It's now v0.7). They changed all of the initial branding and information to their own branding like name, author, email, etc.
+
+This is their repository: https://github.com/Sahomey-Technologies/sahomedb
+
+This is OasysDB v0.4: https://github.com/oasysai/oasysdb/tree/v0.4.0
+
+I honestly don't know what to do. I know that OasysDB is open-source and thus, free to modify and redistribute. But, I feel like this is more like a plagiarism and a bit unethical to do.
+
+If anyone got similar experience, I'd like to hear some advice.
+
+Thank you in advance.",anecdote,
+"Hi HN,
+
+I built the first version of Drawize back in late 2016 specifically for a Samsung Tizen OS app contest. I crunched and built the whole thing (including the real-time multiplayer engine) in under 4 weeks.
+
+It didn’t win anything in the contest.
+
+Since it was built with web tech anyway, I published it on the open web in early 2017 just to see what would happen. It started living its own life, and today — 8 years later — the database processed the 100,000,000th drawing.
+
+On the busiest days it’s been 30k+ active users, and storing 100M drawings currently sits at ~3.16 TB.
+
+The milestone moment: I was watching live logs today, terrified the 100Mth drawing would be NSFW. Luckily, the RNG gods smiled and it turned out to be a Red Balloon 
+(You can see the 100Mth drawing here: https://www.drawize.com/blog/100-million-drawings-milestone)
+
+Tech stack (boring but fast):
+
+Backend: .NET + WebSockets (real-time sync)
+
+Frontend: hand-coded HTML/JS + jQuery (no React, no bundlers)
+
+Data: PostgreSQL & MongoDB
+
+Storage: Wasabi Cloud (moved there to save on S3 costs)
+
+Scaling as a solo dev: real-time lobbies + reconnection edge cases + moderation/content filtering. I use content classification models trained in 2021 to filter bad content, and the real-time multiplayer side is mostly highly optimized .NET code.
+
+Happy to answer questions about the “failed” Tizen origin, real-time multiplayer on the web, moderation, or how .NET handles the load.",anecdote,"The dominant content is a story arc: built Drawize in under 4 weeks for a 2016 Samsung Tizen contest, didn't win, published it anyway in 2017 ""to see what would happen,"" it took on a life of its own, and 8 years later just hit its 100,000,000th drawing — capped by the milestone-day vignette (watching live logs, terrified the 100Mth drawing would be NSFW, relieved it was a red balloon). That's first-person, retrospective, specific lived experience, and it's the heart of the post. Run the removal test: strip the personal narrative and you lose the substance — the post is the origin-and-milestone story."
+"Just received:
+We regret to inform you that due to the tense geopolitical situation with Russia, we will be ending our contractual relationship with customers from Russia.
+
+Political decisions have led to changes in the legal regulations that affect our business with Russian-based customers. Unfortunately, we can no longer have contracts with customers with Russian postal addresses. This will affect everyone with a Russian address stored on Hetzner Accounts.
+
+After we analyze the customer databases, we will send the affected customers a notice of termination for all products and services on Friday, 15 December 2023. It will take effect from 31 January 2024. We recommend that you take appropriate measures now.",anecdote,
+"After spending a few months building out a new project that relies on the Instagram Graph API I'm struggling to pass Meta's Access Verification for Tech Providers.
+
+We passed the app verification and business verification fairly easily, but we're stuck getting access verification. It feels like Meta is automatically denying us access without telling us explicitly what they are looking for or what we are missing from our answers. We keep getting knocked back with the same reply asking for:
+
+ 1. Add details about how your business will use Platform Data (i.e., any info or data you obtain from us) to enable a product or service on behalf of your clients.
+
+ 2. Describe how your clients use your product or service.
+
+All we really need is to use Instagram OAuth to retrieve the username from the authorised user. My replies have gone into depth explaining this to Meta, including how we use the username (we save it against a user model in our database) and instructions for users to delete their accounts. But nothing seems to be enough.
+
+Has anyone had experience with this and can shed some light on what I might be doing wrong?
+
+Thanks!",anecdote,"The content is a specific lived situation reported firsthand: months building a project on the Instagram Graph API, passed app and business verification easily, but stuck on Meta's Access Verification for Tech Providers; it feels like automatic denial with no clear explanation; he quotes the two repeated requests Meta keeps sending; explains that all they need is Instagram OAuth to get the username (saved against a user model, with account-deletion instructions), and nothing satisfies them. First-person, specific, load-bearing experience. Run the removal test: strip the personal experience and only the bare ""has anyone dealt with Meta access verification?"" question remains — the anecdote tell."
+">I think it's pathetic that this has become the culture amongst large swathes of Americans - especially ones who consider themselves patriotic. This country was founded in rebellion and the assertion of our rights, and somehow the exact opposite is now the ideal of many citizens now.
+
+DHS is putting on the domestic terrorists watch list those people who took parts in the protests. Or at minimum threatens to put. And if you google a bit more you'd see that it isn't limited to ICE. Any dissent is perceived by the current government in a similar ""terrorism"" way. For majority of population that would completely chill any desire to assert rights.
+
+https://www.markey.senate.gov/imo/media/doc/letter_to_dhs_on...
+
+""U.S. Immigrations and Customs Enforcement (ICE) officers and senior Trump
+administration officials have repeatedly suggested that the Department of Homeland Security (DHS) is building a “domestic terrorists” database comprising information on U.S. citizens protesting ICE’s actions in recent weeks.
+
+...
+
+In recent weeks, DHS personnel and senior officials have repeatedly stated that the agency is engaged in efforts to monitor, catalog, and intimidate individuals engaged in peaceful protests""",analysis,
+"I built a trend visualizer / data-query tool on top of a Product Hunt dataset (https://www.kaggle.com/datasets/mathisco01/product-hunt-laun...) and discovered that while the amount of launches nearly doubled in the first half of 2026, the engagement (upvotes, comments, etc) with those launches almost halved.
+
+Product Hunts effectiveness was highly contested already, but with the platform being flooded by thin AI launches it's value to builders seems fleeting.
+
+And before you ask, yes the webapp was built with LLMs.",analysis,
+">> DuckDB is amazing for any sort of fast data analysis when the data is small enough that it can fit on your laptop
+
+I agree, and the dirty (not so) secret big data providers like Snowflake try to hide: the majority of your work is not big data and WILL fit on your local machine. My last company was spending $2M/yr on contract with Snowflake, and another million between Fivetran and Matillion. Of the 1200 clients using analytics maybe 2 had enough data to warrant ""infinite scalability"" and a dozen wanted Snowflake because they already had corporate warehouses in Snowflake (they probably didn't need it either). Turns out the Extract and Load could be handled by bog-standard C# code and a bunch of SQL, while almost everyone was better off with a DuckDB database running locally, often in the browser. You've probably heard YAGNI before (You Ain't Gonna Need It) but it's even more likely with ""Big Data"". #SmallDataConvert",analysis,"This comment stakes a contested thesis (most workloads aren't big data and fit locally, so most don't need Snowflake-type platforms; YAGNI for ""Big Data"") and reasons to it from a quantified personal case study (last company: $2M/yr Snowflake + ~$1M ETL, only ~2 of 1200 clients needed scalability, plain C#+SQL sufficed, DuckDB-local served the rest), so it's a position argued from grounds toward a verdict rather than asserted or neutrally explained. While the the evidence is unverifiable (self-reported, unlinked) and over-generalizes from n=1 to ""the majority of your work"", it leans analysis over anecdote because the dominant act is arguing a general contested thesis, with the personal figures serving as its support."
+"I’m speaking about the hypothetical situation where an app is blown from the face of the earth, not temporarily goes down. I thought that’s what the parent discussion was about. I’m not sure what we’re discussing now.
+
+All I’m saying is that if a developer forever takes down some atproto app, another developer can put up a new app that shows the old app’s data because the data is actually inside the users’ repositories. This is similar to how if Microsoft ever discontinued Word, you could still open Word documents in Google Docs. Does that make sense?
+
+Re: Blacksky, they do fully run on their own infra now. So it doesn’t depend on Bluesky’s database.",explanation,
+"Well, thank you for clarifying. The signal is getting lost in the noise. I assumed too soon after looking around just the datasette org github account and seeing so many repos and code being built so fast.",anecdote,"No thesis, mechanism, or contested position; it's an acknowledgment + self-correction, this leans anecdote only because the lone substance is a brief first-person account of his own (mis)judgment."
+"The value of many platforms is not the database or the stack, but the community on it. People use Letterboxd because their friends are there and because actors and directors have their lists and ratings there.",explanation,"RELABEL hot_take->explanation: calm asserted observation + example (platform value = community, not the stack); no register/provocation. (analysis defensible if read as a staked claim+evidence)"
+"I am currently getting my Facebook feed flooded with ""ads"" that claim to be coming from OpenAI and/or Midjourney. These ""ads"" claim to be containing a ""private release"" of their new AI technology (Sora and others), and asks the user to follow a link.
+
+That link directly goes to a Google Drive, containing a single RAR file, containing an ""Installer"". Of course the installer really is a trojan infecting your PC.
+
+How on earth can Facebook be unable to filter this? How can it even be possible to post an ad with Facebook containing a Link to a Google Drive? Don't they do ANY validation of ownership of link targets? On Google Ads for example you can not link to any Domain you haven't proven ownership for.
+
+This is not rocket science. I am not even asking Facebook to run a virus scanner on link targets. But how about disallowing links to Google Drives, or direct links to downloads in general?
+
+Also, how is it possible that Facebook does not do ANY checks on registered trademarks when ""advertisers"" create accounts? How is it possible that scammers can create account names like ""Amazon"", ""OpenAI"" etc? How hard can it be to look up account names in a database of registered brand names?
+
+Just today I have reported five of those ""ads"" to Facebook, but they keep popping up.
+
+I am flabbergasted that it is SO easy to abuse Facebook to mass-infect users.
+
+Does anyone have any contact to alert anyone with competence at Facebook? Just reporting those ads one by one won't change anything.",anecdote,
+"If you host iframe apps at a fixed URL like:
+
+ /-/apps/iframe-content/timeline.html
+
+You can protect it with CSP headers, but you can't also protect it with the sandbox="""" attribute (should a user visit it directly)
+
+If you want both sandbox= restrictions and CSP headers at the same time the only way I've found that works cross all major borders is the iframe plus srcdoc="""" with injected CSP meta headers patterns.
+
+Note that a lot of sandbox implementations serve their iframe content from a separate domain, to ensure cookies and localStorage and other same origin things are robustly protected.
+
+I can't do that easily for Datasette because it's open source software that people can run on their own laptops, so I didn't want to block people on ""now register a domain/subdomain and set this up in DNS"".",explanation,
+"It seems that when implemented correctly, running full-stack Elixir can greatly simplify complicated distributed systems. In-memory storage can replace a cache, and the architecture itself can replace a message queue. Horizontal or even vertical scaling can replace complicated scaling mechanisms. There are plenty of advantages to running data pipelines in parallel too.
+
+There's also a huge trend now away from managed cloud services (ZIRP), and it seems like Elixir with a database on the same machine or network could deliver great performance and scalability.
+
+So why don't more people use Elixir? I've read some complaints about the lack of static types or not having as many developers. But if those were the only constraints, one would think that they could be overcome, or some service could just greatly simplify Elixir deployments.",explanation,"This is a dominantly an exploratory/didactic account of Elixir's distributed-systems advantages (in-memory state replaces cache, the architecture replaces a message queue, built-in horizontal/vertical scaling replaces complex scaling, parallel pipelines), plus context (trend away from managed cloud, ""ZIRP"") and a tentative ""co-located DB could deliver great perf/scale,"" ending in a genuine puzzle: ""so why don't more people use Elixir?"" — steelmanning the usual objections (no static types, fewer devs) as seemingly surmountable. Heavily hedged (""it seems,"" ""could,"" ""one would think"") and destination is a question, not a verdict → exploratory register."
+"Hey HN!
+
+Over the past few months, I've been working on building Omni - a workplace search and chat platform that connects to apps like Google Drive/Gmail, Slack, Confluence, etc. Essentially an open-source alternative to Glean, fully self-hosted.
+
+I noticed that some orgs find Glean to be expensive and not very extensible. I wanted to build something that small to mid-size teams could run themselves, so I decided to build it all on Postgres (ParadeDB to be precise) and pgvector. No Elasticsearch, or dedicated vector databases. I figured Postgres is more than capable of handling the level of scale required.
+
+To bring up Omni on your own infra, all it takes is a single `docker compose up`, and some basic configuration to connect your apps and LLMs.
+
+What it does:
+
+- Syncs data from all connected apps and builds a BM25 index (ParadeDB) and HNSW vector index (pgvector)
+
+- Hybrid search combines results from both
+
+- Chat UI where the LLM has tools to search the index - not just basic RAG
+
+- Traditional search UI
+
+- Users bring their own LLM provider (OpenAI/Anthropic/Gemini)
+
+- Connectors for Google Workspace, Slack, Confluence, Jira, HubSpot, and more
+
+- Connector SDK to build your own custom connectors
+
+Omni is in beta right now, and I'd love your feedback, especially on the following:
+
+- Has anyone tried self-hosting workplace search and/or AI tools, and what was your experience like?
+
+- Any concerns with the Postgres-only approach at larger scales?
+
+Happy to answer any questions!
+
+The code: https://github.com/getomnico/omni (Apache 2.0 licensed)",explanation,"Not anecdote (first-person = motivation/standing — ""noticed Glean is expensive, figured Postgres is capable""; description survives removal)."
+"The other thing DuckDB does quite well, and which is out of scope for polars, is its keeping of an absolute zoo of external data sources you can query with SQL from the same database client. It's an excellent data warehousing tool.",explanation,
+"This project is a tool for engineers who live in the terminal and are tired of losing their command history to ephemeral servers or fragmented `.bash_history` files. If you’re jumping between dozens of boxes, many of which might be destroyed an hour later, your ""local memory"" (the history file) is essentially useless. This tool builds a centralized, permanent brain for your shell activity, ensuring that a complex one-liner you crafted months ago remains accessible even if the server it ran on is long gone.
+
+The core mechanism wants to be a ""zero-touch"" capture that happens at the connection gateway level. Instead of installing logging agents or scripts on every target machine, the tool reconstructs your terminal sessions from raw recording files generated by the proxy you use to connect. This ""in-flight"" capture means you get a high-fidelity log of every keystroke and output without ever having to touch the configuration of the remote host. It’s a passive way to build a personal knowledge base while you work.
+
+To handle the reality of context-switching, the tool is designed with a ""multi-tenant"" architecture. For an individual engineer, this isn't about managing different users, but about isolating project contexts. It automatically categorizes history based on the specific organization or project tags defined at the gateway. This keeps your work for different clients or personal side-projects in separate buckets, so you don't have to wade through unrelated noise when you're looking for a specific solution.
+
+In true nerd fashion, the search interface stays exactly where you want it: in the command line. There is no bloated web UI to slow you down. The tool turns your entire professional history into a searchable, greppable database accessible directly from your terminal.
+
+Please read the full story [here](https://carminatialessandro.blogspot.com/2026/01/hc-agentles...)",explanation,
+"To save anyone else wondering what is Datasette a search:
+
+“Datasette is a tool for exploring and publishing data. It helps people take data of any shape, analyze and explore it, and publish it as an interactive website and accompanying API.
+
+Datasette is aimed at data journalists, museum curators, archivists, local governments, scientists, researchers and anyone else who has data that they wish to share with the world. It is part of a wider ecosystem of 44 tools and 154 plugins dedicated to making working with structured data as productive as possible.”",explanation,
+"When I've needed something like this in the past I've spun up simple HTML pages and used the json endpoint that all datasette instances come with [0]. I like this new pattern much better, as it keeps your app and data in one place (I remember having some issue with this at the time, though I can't remember what the actual issue was)
+
+So I imagine we could now load some data in to sqlite, design some HTML also loaded in to the db, and deploy. Although looking at the source, it seems like stored apps are expected to be managed by the plugin itself, but I'm sure there's a way around that
+
+[0] Eg from one of the examples - https://datasette.io/legislators/-/query.json?sql=select+*+f... . If you strip the '.json' you get the html view. For what it's worth there's also a '.csv' version.",explanation,"Anecdotal frame (""when I've needed this I've spun up…"") is the basis for explaining the approach, not a self-contained story — strip it and the explanation stands → not dominantly. This has more of an experience-grounded technical explanation flavor."
+"You gave me a flashback to that time I tried to use Git Annex on a moderately sized dataset and it resulted in a sysadmin at rsync.net personally contacting me to see if I needed help with whatever poorly written script was hammering their service.
+
+In other words: No, absolutely not.",anecdote,
+"I do a lot of MRI analysis including segmentation of small structures in the hippocampus called the hippocampal subfields. To collect these segmentations, we collect partial-field-of-view high in-plane resolution T2-weighted images on a 3 or 7 Tesla magnet. These sequences are generally only included in research protocols if the research specifically cares about hippocampal subfields...therefore they are rarely collected. There have been attempts to enable segmentation of these small structures using lower resolution T1-weighted scans, leveraging deep-learning or other models trained on concurrent T2w high resolution scans and the lower resolution scans within the same subject, allowing the model to predict the higher resolution information from the lower resolution inputs. This produces spectacularly beautiful segmentation on shitty data. Data whose resolution is about the same as the thickness of the structures you are segmenting or less. The problem is this: 1. The lower resolution image barely has any information in it on these smaller structures 2. The accuracy of the resulting segmentation depends entirely on how much the person fits the training distribution. But much research is on specific populations: children, autism, etc. 3. Some big names in imaging analysis tools have published these tools, lending their credibility to them. 4. The beautiful segmentations and (3) tend to convince non hippocampal experts that the resulting data is trustworthy, especially to an eager beaver researcher trying to maximize the impact of their already collected datasets.
+
+I've rejected a number of papers for this.
+
+But my point is this. Midjourney Medical might train a model to produce pretty images with this technique, but the more they need to depend on deep-learning models to get usable data, the more that the match between the training distribution and patient will matter.",analysis,
+"Hi HN! In the past few months my team and I have been working on Tusk Drift, a system that records real API traffic from your service, then replays those requests as deterministic tests. Outbound I/O (databases, HTTP calls, etc.) gets automatically mocked using the recorded data.
+
+Problem we're trying to solve: Writing API tests is tedious, and hand-written mocks drift from reality. We wanted tests that stay realistic because they come from real traffic.
+
+versus mocking libraries: Tools like VCR/Nock intercept HTTP within your tests. Tusk Drift records full request/response traces externally (HTTP, DB, Redis, etc.) and replays them against your running service, no test code or fixtures to write/maintain.
+
+How it works:
+
+1. Add a lightweight SDK (we currently support Python and Node.js)
+
+2. Record traffic in any environment.
+
+3. Run `tusk run`, the CLI sandboxes your service and serves mocks via Unix socket
+
+We run this in CI on every PR. Also been using it as a test harness for AI coding agents, they can make changes, run `tusk run`, and get immediate feedback without needing live dependencies.
+
+Source: https://github.com/Use-Tusk/tusk-drift-cli
+
+Demo: https://github.com/Use-Tusk/drift-node-demo
+
+Happy to answer questions!",explanation,
+"Not really. Difficulty of the attack matters. If your attack chain is silently doing an sql query over 20 year stable database format, vs something that may involve extraction of a master key from some hardened process, or tricking the user to reveal the master password to you, odds of you raising alarm in some anti-malware software raise significantly, because now you're not just reading a file, but you're using some deubgging APIs, etc., that common software does not use.",analysis,
+"It's interesting that the blog post places SQLite and Ladybird on the spectrum, but omits it's chief open source rival: DuckDB.
+
+Agree that Level 3 is what inspires confidence. But we need to invent new business models to sustain in the era of vibe-coded databases.",hot_take,
+"Hi HN, I'm one of the founders of s2.dev. RePlaya (https://github.com/s2-streamstore/replaya) is a self-hosted browser session replay tool using rrweb (https://github.com/rrweb-io/rrweb).
+
+It occurred to me that a durable stream per session would be a much neater architectural foundation for much of what you'd want from such a tool. As a unique feature, it also made live tailing straightforward because the player can read from the same stream the recorder is appending to.
+
+The alternative architecture is likely an ingest firehose which is then indexed, with associated complexity and latency. You'd have to string together multiple data systems like a message queue, a metadata database, and blob storage and/or an OLAP database.
+
+Here the only dependency is S2, which has an open source version you can self-host called s2-lite (https://news.ycombinator.com/item?id=46708055).
+
+How it works:
+
+- one S2 stream per browser session
+
+- large rrweb events (like a full snapshot) get framed across multiple binary S2 records and reassembled on read
+
+- active sessions are tailed with an S2 read session, and bridged to the browser over SSE
+
+- session listing relies on stream names encoding reverse timestamps, as S2 returns a lexicographic order listing
+
+- relying on fencing tokens so a stopped session can't be written to again by a late recorder
+
+- retention and GC are handled via S2 stream config, so no background job needed
+
+Curious to hear from folks on the tool or the stream-per-session model!",explanation,
+"Recently I decided to migrate one of my side projects from AWS to Render for convenience and to manage some of my high ALB costs on AWS.
+
+This weekend I began the process to move some of my infra to Render, including a static website, Postgres database and Redis. I switched the static website over but had some issues restoring my database from SQL backups (Render's Postgres appears to timeout connections after a certain amount of time).
+
+After spending a few hours attempting to import all my data, I was logged out from dashboard and all my services were abruptly taken offline with no notice.
+
+When trying to login again, it just throws me back to the login screen and sleuthing the network requests I can see I am now getting ""Unauthorized"" responses.
+
+My production website was abruptly taken offline with the message ""This service has been suspended by its owner."" (I didn't suspend it)
+
+For clarity, I was on a paid plan, had a credit card added, and all of these services were paid. I have received no communication, now I have to migrate back to AWS.
+
+I can only assume they saw I was using the database heavily (normal during a restore) and decided I was abusing something? I absolutely did not violate any of their terms nor was I doing anything shady. It's just a static website and a Node service. Nothing crazy.
+
+I just wanted to provide a warning to others because this seems egregious.",anecdote,
