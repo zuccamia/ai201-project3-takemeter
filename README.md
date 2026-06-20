@@ -113,13 +113,13 @@ Two-stage process:
 
 **Example B — Structured opinion without verifiable evidence.** Posts that read like reasoned argument but where the supporting claims are themselves assertions, not evidence.
 
-> *"Native software is incredibly difficult to build well. There are at least 4 platforms they would need to support: Win, Mac, iPhone, and Android. That's 4 different software engineers at least, just to keep up with the basic API churn..."*
+> *"Native software is incredibly difficult to build well. There are at least 4 platforms they would need to support: Win, Mac, iPhone, and Android. That's 4 different software engineers at least, just to keep up with the basic API churn..."* — [Source](https://news.ycombinator.com/item?id=48588372)
 
 **Decision:** `analysis`. Although none of the supporting points cite a measurement, they reason from observable, verifiable facts about platform engineering (number of OS targets, API churn). The §3 rule "checkable aggregate evidence → analysis" applies even when the evidence is implicit rather than tabular.
 
 **Example C — Sarcasm/dismissal with rhetorical confidence.** The hardest boundary: confident statements where the support *is* the rhetorical move, with no further argument.
 
-> *"Writing to disk for every write is required, otherwise you're not durable. Sure it's faster to never write to disk, then you reboot and you've lost data. /dev/null is a webscale database that is even faster!"*
+> *"Writing to disk for every write is required, otherwise you're not durable. Sure it's faster to never write to disk, then you reboot and you've lost data. /dev/null is a webscale database that is even faster!"* — [Source](https://news.ycombinator.com/item?id=48590390)
 
 **Decision:** `hot_take`. The §3 rule "label the dominant basis, not the strongest single sentence" applies — the post sounds argumentative but the entire support is sarcasm and a punchline, not evidence. This is the canonical `hot_take` shape and one the model finds hardest (see §6 below).
 
@@ -292,7 +292,7 @@ The `anecdote ↔ analysis` confusion is a different story — both classes are 
 
 **#1 — `hot_take` predicted as `anecdote` (the dominant failure mode)**
 
-> *"AI agents can perfectly do a lot of the data entry tasks and build dashboards. You practically need to build none of that when you can ask an AI agent to pull the data and build a chart or provide a few summary statistics..."*
+> *"AI agents can perfectly do a lot of the data entry tasks and build dashboards. You practically need to build none of that when you can ask an AI agent to pull the data and build a chart or provide a few summary statistics..."* — [Source](https://news.ycombinator.com/item?id=48592240)
 >
 > **True:** `hot_take` · **Predicted:** `anecdote` (confidence 0.33)
 
@@ -300,7 +300,7 @@ The post is confidently asserting that AI agents can replace data-entry workflow
 
 **#2 — `hot_take` predicted as `explanation` (sarcasm failure)**
 
-> *"Writing to disk for every write is required, otherwise you're not durable. Sure it's faster to never write to disk, then you reboot and you've lost data. /dev/null is a webscale database that is even faster!"*
+> *"Writing to disk for every write is required, otherwise you're not durable. Sure it's faster to never write to disk, then you reboot and you've lost data. /dev/null is a webscale database that is even faster!"* — [Source](https://news.ycombinator.com/item?id=48590390)
 >
 > **True:** `hot_take` · **Predicted:** `explanation` (confidence 0.30)
 
@@ -308,7 +308,7 @@ The model reads the structure ("X is required, otherwise Y. /dev/null is Z") as 
 
 **#3 — `anecdote` predicted as `analysis` (the §3 boundary)**
 
-> *"I am currently getting my Facebook feed flooded with 'ads' that claim to be coming from OpenAI and/or Midjourney. These 'ads' claim to be containing a 'private release' of their new AI technology..."*
+> *"I am currently getting my Facebook feed flooded with 'ads' that claim to be coming from OpenAI and/or Midjourney. These 'ads' claim to be containing a 'private release' of their new AI technology..."* — [Source](https://news.ycombinator.com/item?id=39545116)
 >
 > **True:** `anecdote` · **Predicted:** `analysis` (confidence 0.37)
 
