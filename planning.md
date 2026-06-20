@@ -204,6 +204,8 @@ The collector targets a *post-type* mix, not label balance — and with `--query
      - Reconsider the schema: if the label stays rare because the behavior IS rare, decide whether to merge it, redefine it, or keep it and report per-class metrics honestly. -->
 If a label falls below ~15% of the usable total, I'll first try targeted collection — re-running with `--query` terms likely to surface the rare label, or lowering `MIN_STORY_POINTS` and `--add`-ing more. If it stays rare, I'll reconsider the schema: merge with its nearest neighbor, broaden the definition, or keep it and report per-class metrics with a note on small support. No up-sampling by duplication — leakage across the split inflates scores and hides the problem.
 
+**Outcome (post-labeling):** the trigger fired — `hot_take` came in at 14% (28/200). On a project timeline, I chose to **hold the dataset** rather than delay for targeted re-collection. The trade-off is documented in §5 (per-class noise caveat — `hot_take` test support is n=4, so its F1 swings ±0.25 per misclass) and reflected in §6 (the per-class floor for `hot_take` is loosened from a precise threshold to a directional "≥3 of 4 correct" check). The label boundary itself remains meaningful in the data, so I kept the four-way schema rather than merging.
+
 ---
 
 ## 5. Evaluation Metrics
@@ -219,17 +221,17 @@ Macro-F1. Also report per-class precision, recall, F1, and a 4×4 confusion matr
      - Why not accuracy alone? If classes are imbalanced, a model that always predicts the majority label scores high accuracy while being useless. Tie this to YOUR expected distribution.
      - Precision vs. recall trade-off: which error is costlier FOR the community tool you imagine? (e.g. for a moderation-flag classifier, a false positive annoys good-faith users; a false negative lets harmful content through — which matters more, and why?) Pick your operating point accordingly.
      - Per-class vs. averaged: will you report per-label P/R/F1 to catch a label the model quietly fails on? Macro- or micro-average, given your balance? -->
-- Classes are uneven (anecdote 30.5%, explanation 29.5%, analysis 20.5%, hot_take 19.5%), so accuracy can hide failure on the smaller two. Macro-F1 weights each class equally.
+- Classes are uneven (anecdote 31.5%, explanation 31.5%, analysis 23%, hot_take 14%), so accuracy can hide failure on the smaller two. Macro-F1 weights each class equally. Note: `hot_take` came in at 14%, tripping the 15% contingency in §4. Given the project timeline, I held the dataset rather than delaying for targeted re-collection — the per-class noise caveat below documents the resulting trade-off (n=4 on test → ±0.25 F1 swing per misclass), and §6's per-class floor is correspondingly loosened for `hot_take`.
 - Precision and recall matter the same here — this is a reader-side filter, not a moderation tool, so no error is more costly than the other.
 - Per-class F1 is the check that no label gets quietly ignored.
 
 **Supporting analysis:**
 <!-- A confusion matrix to see WHICH labels get confused — this should line up with your edge cases from Section 3. Optionally a few qualitative error examples. -->
-The confusion matrix is the diagnostic for Section 3 edges (`analysis` ↔ `explanation`, `anecdote` ↔ `analysis`, `anecdote` ↔ `explanation`). If those cells are heavy, the boundary is the bottleneck, not the model. I'll also pull 5–10 error examples for the writeup.
+The confusion matrix is the diagnostic for Section 3 edges (`analysis` ↔ `explanation`, `anecdote` ↔ `analysis`, `anecdote` ↔ `explanation`). The Groq baseline surfaced an unhypothesized confusion worth watching: `hot_take` as a sink — the baseline emitted `hot_take` ~2.5× its true frequency on test (10 predictions, 4 actual), with most of those false positives drawn from real `analysis` and `explanation` posts. If those cells are heavy in the fine-tuned model too, the boundary is the bottleneck, not the model. I'll also pull 5–10 error examples for the writeup.
 
 **Validation setup:**
 <!-- Train/test split or k-fold? A held-out test set you don't touch until the end? Note it so results are trustworthy. -->
-Stratified 70/15/15 split: 140 train, 30 val, 30 test. Test is held out until final scoring; val is used during development for prompt and hyperparameter iteration. The zero-shot Llama-3.3-70B baseline scores on the same held-out 30-row test set. Caveat: 30 rows is a small test set — a single misclassification shifts per-class recall by ~3 percentage points overall and ~17 points on the smallest classes (n≈6), so narrow macro-F1 gaps are noise and per-class numbers should be reported alongside any headline.
+Stratified 70/15/15 split: 140 train, 30 val, 30 test. Test is held out until final scoring; val is used during development for prompt and hyperparameter iteration. The zero-shot Llama-3.3-70B baseline scores on the same held-out 30-row test set. Caveat: 30 rows is small — test supports are 7 / 10 / 9 / 4 for analysis / anecdote / explanation / hot_take, so a single misclassification shifts overall accuracy by ~3 percentage points, per-class F1 by ~10 points on the larger classes and **~25 points on `hot_take` (n=4)**. Narrow macro-F1 gaps are noise; per-class numbers must be reported alongside any headline, and `hot_take`-specific claims should be made cautiously.
 
 ---
 
@@ -238,7 +240,7 @@ Stratified 70/15/15 split: 140 train, 30 val, 30 test. Test is held out until fi
 **"Genuinely useful" bar:**
 <!-- What performance makes this classifier worth using? Frame it against a BASELINE, not zero:
      e.g. "beats a majority-class baseline of X% and a keyword baseline of Y% by a meaningful margin," plus a per-class floor ("no label below Z F1, so the tool isn't blind to any category"). -->
-Beats zero-shot Llama-3.3-70B on macro-F1, OR beats it on the two smallest classes (`analysis`, `hot_take`) where labeled data should help most. Per-class floor: no F1 below 0.45. (Caveat: gold is hand-reviewed Opus pre-labels, so part of any Llama gap is style drift, not real error.)
+Beats the zero-shot Llama-3.3-70B baseline (macro-F1 **0.45**; per-class F1: analysis **0.60**, anecdote **0.61**, explanation **0.31**, hot_take **0.29**) on macro-F1, OR beats it on the two smallest classes (`analysis`, `hot_take`) where labeled data should help most. Per-class floor: no F1 below 0.45, with one caveat — `hot_take` has only 4 test examples, so its F1 jumps in ±0.25 increments; treat the floor for `hot_take` as a directional check (≥3 of 4 correct) rather than a precise threshold. (Caveat: gold is hand-reviewed Opus pre-labels, so part of any Llama gap is style drift, not real error.)
 
 **"Good enough to deploy" bar:**
 <!-- What would you accept to run this in a real community tool? It depends on what the tool DOES with predictions:
