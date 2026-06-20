@@ -47,7 +47,7 @@
 | `analysis` | A structured argument backed by specific, verifiable evidence such as statistics, historical comparison, or tactical observation | 
 | `explanation` | A neutral, didactic account of how or why something works, aiming to clarify a concept or mechanism rather than argue a position. |
 | `anecdote` | A claim grounded in the author's own first-hand experience ("when we ran this in production..."), offering personal observation rather than generalizable evidence. |
-| `hot-take` | A bold, confident opinion asserted without supporting evidence, which may be true but states rather than argues its case. |
+| `hot_take` | A bold, confident opinion asserted without supporting evidence, which may be true but states rather than argues its case. |
 
 <!-- For each label below: a complete-sentence definition stated POSITIVELY (what makes a post belong here), plus exactly two REAL example posts. Use actual posts (quote or close paraphrase + link) — invented examples hide the ambiguity you'll hit later. -->
 
@@ -79,10 +79,10 @@ A post is labeled `anecdote` when its claim rests on the author's own first-hand
 1. > "This morning, our database flagged a duplicate UUID (v4)... today the system inserted a new document with a fresh UUIDv4 and it came up with the exact same one: b6133fd6-70fe-4fe3-bed6-8ca8fc9386cd... the database only has about 15.000 records, and now one collision. Statistically... impossible. Has that ever happened to anyone?!" — n=1 personal incident; the claim ("this happened to us") rests entirely on the author's single observation and is not reproducible by readers. [Source](https://news.ycombinator.com/item?id=48060054)
 2. > "I discovered ClickHouse around 2017-18 and built a PoC to replace Elasticsearch: 5x better storage and qps, in a couple of weeks. Managers rejected it because it wasn't well known and was seen as 'some database made by Russians.' On a personal level, it's quite sad to have seen that train coming so early and not been able to get on board." — first-hand career story; the numbers are real but unreproducible, and the basis of the claim is "what happened to me." [Source](https://news.ycombinator.com/item?id=48597041)
 
-### Label D — `hot-take`
+### Label D — `hot_take`
 
 **Definition:**
-A post is labeled `hot-take` when it asserts a confident opinion without supporting evidence — stating rather than arguing its case.
+A post is labeled `hot_take` when it asserts a confident opinion without supporting evidence — stating rather than arguing its case.
 
 **Example posts:**
 1. > "Writing to disk for every write is required, otherwise you're not durable. Sure it's faster to never write to disk, then you reboot and you've lost data. /dev/null is a webscale database that is even faster!" — sarcastic, confident dismissal with no supporting evidence beyond the punchline; the rhetorical move is the whole argument. [Source](https://news.ycombinator.com/item?id=48590390)
@@ -105,7 +105,7 @@ Posts that introduce a new product but are really offering insights into a probl
 <!-- What signal pulls it toward each label? -->
 A `Show HN` post that showcases a product or an idea could be either be:
 - an `anecdote` if the post is about how the product was born out of a personal experience, or 
-- a `hot-take` if the post just offers a novel prototype with little to no constructive context, or
+- a `hot_take` if the post just offers a novel prototype with little to no constructive context, or
 - an `analysis` if the post tries to articulate WHY a product is a good idea and backs that up with structured arguments, verifiable statistics and observations, or
 - an `explanation` if the post is only describing in details how the product works without stating any stance or concluding in any position.
 
@@ -150,7 +150,7 @@ Sits between `analysis` and `hot_take` because naming concrete alternatives (SQL
 - **Checkable aggregate evidence → analysis; single first-hand instance → anecdote**: reproducible data or measurements stay analysis even if self-gathered, while one unreproducible experience is anecdote even when it carries numbers.
 - **A link or figure only counts if the claim reasons from it**: verify that the cited source actually supports the conclusion and that a reader could check it, because decorative links, borrowed-authority citations, and cherry-picked stats mimic evidence without being it.
 - **Label the dominant basis, not the strongest single sentence**: one assertive unsupported line does not flip an otherwise evidence-based post.
-- **Tie-break order when labels genuinely co-occur**: analysis > explanation > anecdote > hot-take, taking the first the post substantially does, not merely gestures at, after the dominant-basis check above.
+- **Tie-break order when labels genuinely co-occur**: analysis > explanation > anecdote > hot_take, taking the first the post substantially does, not merely gestures at, after the dominant-basis check above.
 - **Flag, don't agonize**: if it is within a coin-flip of two labels, assign the tie-break winner and mark it low_confidence for review.
 
 ---
@@ -194,7 +194,7 @@ The collector targets a *post-type* mix, not label balance — and with `--query
 | `analysis` | 50 |
 | `anecdote` | 50 |
 | `explanation` | 50 |
-| `hot-take` | 50 |
+| `hot_take` | 50 |
 | **Total** | 200 |
 
 **Contingency — a label is underrepresented after 200 examples:**
