@@ -24,7 +24,7 @@
 <!-- What drew you to it? Useful angles: you already understand its norms, it has a clear observable behavior worth classifying, or it produces a high volume of self-contained posts. -->
 - Hacker News is a vibrant technology community that produces a high, diverse volume of both detailed analytic posts and bold hot-takes.
 - It offers a completely free, open API for fetching comments and posts.
-- Its dry, understated register means faint praise, sarcasm, and dismissal share much of the same vocabulary (e.g. "interesting, but I don't think this scales"), so a classifier that separates substantive comments from shallow dismissals could power a reader-side filter or moderation aid that surfaces the discussion actually worth reading on a given topic.
+- HN's dry register makes faint praise, sarcasm, and dismissal lexically similar — a useful target for a reader-side filter that surfaces real discussion.
 
 **Why it's a good fit for a classification task:**
 <!-- A community is a good fit when the same surface topic gets discussed in genuinely different WAYS or for different PURPOSES — that variation is what your labels capture. Address all three:
@@ -32,8 +32,8 @@
      - Why varied ENOUGH to be interesting? A community where 95% of posts fall in one bucket makes a boring, hard-to-evaluate classifier. Argue your labels will each be reasonably populated and that the boundaries require actual reading.
      - Why not trivial? Give one or two reasons a naive baseline (keyword lookup, post length) would FAIL here. That difficulty is what justifies the project. -->
 - Posts are self-contained plain text with no images, embeds, or engagement-bait formatting, so the signal lives entirely in the language and gives clean input with minimal preprocessing.
-- HN reliably produces both deep technical analysis and reflexive contrarianism, offering several natural label axes (substantive critique vs. shallow dismissal, additive insight vs. "well-actually" correction/explanation, or stance toward the submission).
-- The task is genuinely non-trivial because HN's understated register makes faint praise, sarcasm, and dismissal lexically similar, so a keyword or sentiment-lexicon baseline will struggle and correct classification requires actually reading the comment.
+- HN reliably produces both deep technical analysis and reflexive contrarianism, so each label will be populated and the boundaries require actual reading.
+- A keyword or sentiment-lexicon baseline will struggle because the labels turn on rhetorical structure (basis of the claim), not vocabulary.
 
 ---
 
@@ -55,7 +55,7 @@
 
 **Definition:**
 <!-- One complete sentence: "A post is labeled X when it ___." -->
-A post is labeled analysis when it makes a structured argument whose claims are backed by specific, verifiable evidence (such as statistics, benchmarks, historical comparison, code, or concrete tactical observation), reasoning from that evidence toward a conclusion rather than simply asserting one.
+A post is labeled `analysis` when its claim is backed by specific, verifiable evidence (statistics, benchmarks, historical comparison, code) and reasons from that evidence toward a conclusion.
 
 **Example posts:**
 1. > "It took 5 years from construction start to grid connection for Oskarshamn R3, at the time the reactor with the world's highest rated output. Since it began operating it has produced 350TWh. That nuclear power must take forever is a myth and is only due to dysfunctional politics." — backs the myth-busting thesis with a specific reactor's construction-to-grid timeline and lifetime output, linked to a verifiable nuclear-reactor database entry. [Source](https://news.ycombinator.com/item?id=48595449)
@@ -64,7 +64,7 @@ A post is labeled analysis when it makes a structured argument whose claims are 
 ### Label B — `explanation`
 
 **Definition:**
-A post is labeled `explanation` when it gives a neutral, didactic account of how or why something works — clarifying a concept, mechanism, or distinction for the reader — without staking a position for or against it.
+A post is labeled `explanation` when it neutrally describes how or why something works — clarifying a concept or mechanism without staking a position.
 
 **Example posts:**
 1. > "They seem similar at a glance but they're quite different. You can think of SQLite as a transactional database while DuckDB is better used as an analytical database... SQLite is your metadata record, DuckDB is your ingestion/scanning/aggregating/joining engine." — clarifies the SQLite-vs-DuckDB distinction didactically, framing them as complementary rather than arguing one is better. [Source](https://news.ycombinator.com/item?id=48595297)
@@ -73,7 +73,7 @@ A post is labeled `explanation` when it gives a neutral, didactic account of how
 ### Label C — `anecdote`
 
 **Definition:**
-A post is labeled `anecdote` when its claim rests primarily on the author's own first-hand, single-instance experience — a personal story, a thing that happened once to them, or a project born from a specific personal need — rather than on aggregate or independently verifiable evidence.
+A post is labeled `anecdote` when its claim rests on the author's own first-hand, single-instance experience rather than on aggregate or independently verifiable evidence.
 
 **Example posts:**
 1. > "This morning, our database flagged a duplicate UUID (v4)... today the system inserted a new document with a fresh UUIDv4 and it came up with the exact same one: b6133fd6-70fe-4fe3-bed6-8ca8fc9386cd... the database only has about 15.000 records, and now one collision. Statistically... impossible. Has that ever happened to anyone?!" — n=1 personal incident; the claim ("this happened to us") rests entirely on the author's single observation and is not reproducible by readers. [Source](https://news.ycombinator.com/item?id=48060054)
@@ -82,7 +82,7 @@ A post is labeled `anecdote` when its claim rests primarily on the author's own 
 ### Label D — `hot-take`
 
 **Definition:**
-A post is labeled `hot-take` when it asserts a bold or confident opinion without supporting evidence, stating rather than arguing its case — the claim may well be true, but the post does not show its work.
+A post is labeled `hot-take` when it asserts a confident opinion without supporting evidence — stating rather than arguing its case.
 
 **Example posts:**
 1. > "Writing to disk for every write is required, otherwise you're not durable. Sure it's faster to never write to disk, then you reboot and you've lost data. /dev/null is a webscale database that is even faster!" — sarcastic, confident dismissal with no supporting evidence beyond the punchline; the rhetorical move is the whole argument. [Source](https://news.ycombinator.com/item?id=48590390)
@@ -121,10 +121,25 @@ And before you ask, yes the webapp was built with LLMs.
 ```
 [Source](https://news.ycombinator.com/item?id=48594671)
 
-The first-person "I built a tool" framing makes it look anecdotal, but that framing only describes how the author obtained the evidence, not what the claim rests on. The actual basis is an aggregate finding over a public dataset (launches nearly doubled while engagement almost halved), with a linked Kaggle source anyone can check. That is generalizable, verifiable evidence, not n=1 personal experience, so the characteristic "checkable/generalizable evidence to analysis; first-hand single instance to anecdote" of `analysis` routes cleanly to `analysis`. It also reasons from the evidence toward a conclusion ("value to builders seems fleeting") rather than just asserting one.
+"I built a tool" frames it as anecdote, but the claim rests on an aggregate finding over a public Kaggle dataset (launches doubled, engagement halved) — checkable, generalizable evidence that reasons to a conclusion ("value to builders seems fleeting"). Routes to `analysis`.
 
 Example 2:
+```
+I added the Feed feature to the site to make it more usable from mobile. You can scroll and discover important connections. I used Wikidata as source, ArangoDB as database, Redis for caching, Vue+ Cytoscape.js for frontend. If you are from desktop try Explore mode.
+```
+[Source](https://news.ycombinator.com/item?id=48572698)
 
+Sits between `anecdote` and `explanation`. The "I added X" frame looks anecdotal, but strip it and the descriptive content (what the feature does, the stack, a usage tip) survives intact — no story arc, no claim, no contested position. The dominant basis is description, not personal experience. Pre-labeled `anecdote`; corrected to `explanation`.
+
+Example 3:
+```
+This is such a basic thing nowadays, and ElasticSearch is massive overkill for it. Something like SQLite or LanceDB or basically any vector database is much more appropriate.
+
+This seems to be coming from the "we must make ElasticSearch AI-compatible" department more than anything.
+```
+[Source](https://news.ycombinator.com/item?id=48584737)
+
+Sits between `analysis` and `hot_take` because naming concrete alternatives (SQLite, LanceDB) looks like evidence. But the alternatives are listed, not justified: no mechanism, no characterization of what the task needs, no tradeoff. The post stakes a contested position ("massive overkill") and asserts rather than argues it. Pre-labeled `analysis`; corrected to `hot_take`.
 
 **Annotation rule:**
 <!-- The decision procedure you'll apply EVERY time you hit this case, so labeling stays consistent. Good rules are deterministic and reference observable features. Forms that work:
@@ -156,9 +171,7 @@ Sort is by date (newest-first), paging backward in time until each target fills.
 
 Single-topic rationale: holding the topic constant is intentional. Because every example is about databases, the model can't use topic vocabulary as a shortcut to guess the label — it's forced to key on the *rhetorical* signal (how a claim is made) rather than *what* the post is about, which is exactly the axis this taxonomy measures. So a fixed topic sharpens the learning signal for style. The tradeoff: narrower generalization — a classifier trained only on database posts is expected to transfer less well to unrelated topics. Accepted as a scope limitation for this project, not a defect.
 
-Reproducibility caveat: the default pulls the most recent qualifying posts, so re-running on another day returns a different sample — SEED=42 only fixes the post-collection shuffle, not which posts are fetched. For an exactly reproducible pull, pin a window with the API's created_at_i numeric filter (created_at_i>START,created_at_i<END).
-
-Note on multi-batch collection: because the target is reached by over-collecting and topping up with `--add` (see Sampling), the final corpus is assembled from several runs, each fetching the newest posts not already in the file and paging backward from there. Spreading those runs across different days therefore widens — and fragments — the effective date range of the sample. For an exactly reproducible build, pin and record the `created_at_i` window for *each* batch, not just one; otherwise the date span is whatever the run dates happened to cover.
+Reproducibility caveat: the default pulls the newest qualifying posts, so re-running returns a different sample — SEED=42 only fixes the shuffle, not the fetch. Because the target is reached by over-collecting and topping up with `--add`, the final corpus is assembled from several runs across different days, fragmenting the effective date range. For an exact reproducible build, pin and record the API's `created_at_i` window for *each* batch.
 
 **Sampling approach:**
 <!-- How do you avoid a skewed or duplicate-heavy sample? Dedup, removing deleted/bot posts, min-length filter, etc. -->
@@ -189,8 +202,7 @@ The collector targets a *post-type* mix, not label balance — and with `--query
      - Targeted collection: search keywords/threads likely to surface the rare label rather than sampling blindly.
      - Widen the window: longer date range or a related sub-community.
      - Reconsider the schema: if the label stays rare because the behavior IS rare, decide whether to merge it, redefine it, or keep it and report per-class metrics honestly. -->
-If any label falls below ~15% of the usable total (and especially below 7, where it can vanish from the 15% val/test slices), I'll first try targeted collection — re-running with `--query` terms likely to surface the rare label, though within the narrow `database` topic lowering `MIN_STORY_POINTS` and `--add`-ing more is often the more reliable lever.
-If it stays rare because the behavior genuinely is rare on HN, I'll reconsider the schema: merge the label into its nearest neighbor, broaden its definition, or keep it and report per-class metrics honestly with a note on the small support. I won't up-sample by duplicating the rare class, since near-identical rows leaking across the split inflate the scores and hide the problem.
+If a label falls below ~15% of the usable total, I'll first try targeted collection — re-running with `--query` terms likely to surface the rare label, or lowering `MIN_STORY_POINTS` and `--add`-ing more. If it stays rare, I'll reconsider the schema: merge with its nearest neighbor, broaden the definition, or keep it and report per-class metrics with a note on small support. No up-sampling by duplication — leakage across the split inflates scores and hides the problem.
 
 ---
 
@@ -200,22 +212,24 @@ If it stays rare because the behavior genuinely is rare on HN, I'll reconsider t
 
 **Primary metric(s):**
 <!-- e.g. macro-averaged F1 -->
-[your answer]
+Macro-F1. Also report per-class precision, recall, F1, and a 4×4 confusion matrix.
 
 **Why these are right here:**
 <!-- Cover:
      - Why not accuracy alone? If classes are imbalanced, a model that always predicts the majority label scores high accuracy while being useless. Tie this to YOUR expected distribution.
      - Precision vs. recall trade-off: which error is costlier FOR the community tool you imagine? (e.g. for a moderation-flag classifier, a false positive annoys good-faith users; a false negative lets harmful content through — which matters more, and why?) Pick your operating point accordingly.
      - Per-class vs. averaged: will you report per-label P/R/F1 to catch a label the model quietly fails on? Macro- or micro-average, given your balance? -->
-[your answer]
+- Classes are uneven (anecdote 30.5%, explanation 29.5%, analysis 20.5%, hot_take 19.5%), so accuracy can hide failure on the smaller two. Macro-F1 weights each class equally.
+- Precision and recall matter the same here — this is a reader-side filter, not a moderation tool, so no error is more costly than the other.
+- Per-class F1 is the check that no label gets quietly ignored.
 
 **Supporting analysis:**
 <!-- A confusion matrix to see WHICH labels get confused — this should line up with your edge cases from Section 3. Optionally a few qualitative error examples. -->
-[your answer]
+The confusion matrix is the diagnostic for Section 3 edges (`analysis` ↔ `explanation`, `anecdote` ↔ `analysis`, `anecdote` ↔ `explanation`). If those cells are heavy, the boundary is the bottleneck, not the model. I'll also pull 5–10 error examples for the writeup.
 
 **Validation setup:**
 <!-- Train/test split or k-fold? A held-out test set you don't touch until the end? Note it so results are trustworthy. -->
-[your answer]
+Stratified 80/20 split: 160 train+val, 40 test (untouched until final scoring). On the 160, 5-fold CV during development for stable macro-F1. The zero-shot Llama-3.3-70B baseline scores on the same held-out 40.
 
 ---
 
@@ -224,14 +238,14 @@ If it stays rare because the behavior genuinely is rare on HN, I'll reconsider t
 **"Genuinely useful" bar:**
 <!-- What performance makes this classifier worth using? Frame it against a BASELINE, not zero:
      e.g. "beats a majority-class baseline of X% and a keyword baseline of Y% by a meaningful margin," plus a per-class floor ("no label below Z F1, so the tool isn't blind to any category"). -->
-[your answer]
+Beats zero-shot Llama-3.3-70B on macro-F1, OR beats it on the two smallest classes (`analysis`, `hot_take`) where labeled data should help most. Per-class floor: no F1 below 0.45. (Caveat: gold is hand-reviewed Opus pre-labels, so part of any Llama gap is style drift, not real error.)
 
 **"Good enough to deploy" bar:**
 <!-- What would you accept to run this in a real community tool? It depends on what the tool DOES with predictions:
      - Auto-acts (auto-removes / publicly tags): high, precision-driven bar — errors are visible and costly.
      - Assists a human (surfaces a suggestion a mod confirms): lower bar — a person catches mistakes.
      State which deployment mode you're targeting + the numeric threshold, then name the failure mode that would make you NOT ship even if aggregate numbers look fine (e.g. "systematically mislabels the rare-but-important class"). -->
-[your answer]
+Mode: human-assist (suggests a label, person confirms). Bar: macro-F1 ≥ 0.65, no class below 0.50. Block ship if the model systematically mixes `analysis` with `hot_take` — separating those is the whole point of the tool.
 
 ---
 
