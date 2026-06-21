@@ -39,7 +39,7 @@ demo = gr.Interface(
         ["They seem similar at a glance but they're quite different. You can think of SQLite as a transactional database while DuckDB is better used as an analytical database. SQLite is your metadata record, DuckDB is your ingestion/scanning/aggregating/joining engine."],
         ["Writing to disk for every write is required, otherwise you're not durable. Sure it's faster to never write to disk, then you reboot and you've lost data. /dev/null is a webscale database that is even faster!"],
     ],
-    allow_flagging="never",
+    flagging_mode="never",
 )
 
 if __name__ == "__main__":
