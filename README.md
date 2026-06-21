@@ -2,6 +2,8 @@
 
 A classifier that distinguishes how a Hacker News post argues its case — by **evidence** (`analysis`), **mechanism** (`explanation`), **personal experience** (`anecdote`), or **unsupported assertion** (`hot_take`). The labels turn on rhetorical structure, not topic or vocabulary, so a single-topic corpus (database posts) sharpens the learning signal for *how* people argue rather than *what* they argue about.
 
+🔗 **Live demo:** [huggingface.co/spaces/zuccamia/takemeter](https://huggingface.co/spaces/zuccamia/takemeter) — paste any HN-style post and see the fine-tuned model's predicted label and confidence distribution across all four classes. First load takes ~30 seconds (Space wakes from sleep); subsequent calls are ~150 ms.
+
 This README is the evaluation report. The planning document (`planning.md`) records label definitions, edge-case rules, and the design decisions made before any data was collected.
 
 ---
