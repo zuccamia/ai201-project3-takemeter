@@ -37,6 +37,7 @@ demo = gr.Interface(
         ["It took 5 years from construction start to grid connection for Oskarshamn R3, at the time the reactor with the world's highest rated output. Since it began operating it has produced 350TWh. That nuclear power must take forever is a myth and is only due to dysfunctional politics."],
         ["This morning, our database flagged a duplicate UUID (v4). The system inserted a new document with a fresh UUIDv4 and it came up with the exact same one as an existing record. The database only has about 15,000 records. Statistically impossible. Has that ever happened to anyone?"],
         ["They seem similar at a glance but they're quite different. You can think of SQLite as a transactional database while DuckDB is better used as an analytical database. SQLite is your metadata record, DuckDB is your ingestion/scanning/aggregating/joining engine."],
+        ["'AI' is a buzzword now thanks to the Vulture Capitalists. The feature should speak for itself. If your feature is good you don't need to market the underlying technology. Saying something uses AI is pointless."],
         ["Writing to disk for every write is required, otherwise you're not durable. Sure it's faster to never write to disk, then you reboot and you've lost data. /dev/null is a webscale database that is even faster!"],
     ],
     flagging_mode="never",
